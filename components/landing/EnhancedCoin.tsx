@@ -24,20 +24,20 @@ function Coin({ position, speed, rotationSpeed, rotationDirection, mousePosition
     if (groupRef.current) {
       const baseRotation = state.clock.elapsedTime * rotationSpeed * rotationDirection;
       
-      groupRef.current.rotation.y = baseRotation;
+      groupRef.current.rotation.x = baseRotation;
       
       if (mousePosition.current.isHovering) {
         const mouseInfluence = 0.3;
-        groupRef.current.rotation.y += mousePosition.current.x * mouseInfluence;
-        groupRef.current.rotation.z = mousePosition.current.y * mouseInfluence * 0.5;
+        groupRef.current.rotation.x += mousePosition.current.y * mouseInfluence;
+        groupRef.current.rotation.z = mousePosition.current.x * mouseInfluence * 0.5;
       } else {
         groupRef.current.rotation.z = 0;
       }
       
-      groupRef.current.rotation.x = 0;
+      groupRef.current.rotation.y = 0;
       
-      groupRef.current.position.y = position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5;
-      groupRef.current.position.z = position.z + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3;
+      groupRef.current.position.y = position.y + Math.sin(state.clock.elapsedTime * speed) * 0.2;
+      groupRef.current.position.z = position.z;
       groupRef.current.position.x = position.x;
     }
   });
