@@ -1,14 +1,49 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { fadeIn } from '@/lib/utils/animations';
 
+function CoinSegment({ angle, distance, index }: { angle: number; distance: number; index: number }) {
+  const meshRef = useRef<THREE.Group>(null);
+  const { scene } = useGLTF('/models/coin.glb');
+
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x = state.clock.elapsedTime * (0.5 + index * 0.1);
+    }
+  });
+
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+
+  const x = Math.cos(angle) * distance;
+  const z = Math.sin(angle) * distance;
+
+  return (
+    <group ref={meshRef} position={[x, 0, z]} scale={[0.3, 0.3, 0.3]}>
+      <primitive object={clonedScene} />
+    </group>
+  );
+}
+
+useGLTF.preload('/models/coin.glb');
+
 function PieChart3D() {
   const groupRef = useRef<THREE.Group>(null);
+
+  const segments = useMemo(() => {
+    const count = 12;
+    const radius = 2;
+    const coins = [];
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      coins.push({ angle, distance: radius, index: i });
+    }
+    return coins;
+  }, []);
 
   useFrame((state) => {
     if (groupRef.current) {
@@ -17,35 +52,21 @@ function PieChart3D() {
     }
   });
 
-  const segments = [
-    { color: '#8b5cf6', size: 0.3, angle: 0 },
-    { color: '#3b82f6', size: 0.25, angle: Math.PI * 0.6 },
-    { color: '#10b981', size: 0.2, angle: Math.PI * 1.2 },
-    { color: '#f59e0b', size: 0.15, angle: Math.PI * 1.8 },
-    { color: '#ef4444', size: 0.1, angle: Math.PI * 2.4 },
-  ];
-
   return (
     <>
       <PerspectiveCamera makeDefault position={[0, 0, 5]} />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1} />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
+      <directionalLight position={[0, 10, 5]} intensity={0.5} />
       <group ref={groupRef}>
         {segments.map((segment, index) => (
-          <mesh
+          <CoinSegment
             key={index}
-            rotation={[0, 0, segment.angle]}
-            position={[0, 0, index * 0.1]}
-          >
-            <cylinderGeometry args={[segment.size, segment.size, 0.2, 32]} />
-            <meshStandardMaterial
-              color={segment.color}
-              emissive={segment.color}
-              emissiveIntensity={0.3}
-              metalness={0.7}
-              roughness={0.3}
-            />
-          </mesh>
+            angle={segment.angle}
+            distance={segment.distance}
+            index={index}
+          />
         ))}
       </group>
       <OrbitControls enableZoom={false} />
