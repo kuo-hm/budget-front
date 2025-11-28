@@ -1,11 +1,12 @@
 export const formatDate = (date: Date | string, format: 'short' | 'long' | 'medium' = 'medium'): string => {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
   
-  const options: Intl.DateTimeFormatOptions = {
+  const map: Record<string, Intl.DateTimeFormatOptions> = {
     short: { month: 'short', day: 'numeric', year: 'numeric' },
     medium: { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' },
     long: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-  }[format];
+  };
+  const options = map[format];
 
   return new Intl.DateTimeFormat('en-US', options).format(dateObj);
 };

@@ -1,7 +1,7 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { Mesh, Vector3 } from 'three';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -14,7 +14,7 @@ interface CoinProps {
 
 function Coin({ position, speed, modelPath }: CoinProps) {
   const meshRef = useRef<Mesh>(null);
-  
+
   let gltf: any = null;
   if (modelPath) {
     try {
@@ -58,7 +58,7 @@ function Coin({ position, speed, modelPath }: CoinProps) {
 }
 
 export function FloatingCoinModel() {
-  const coins = useRef<Vector3[]>(() => {
+  const coins = useMemo(() => {
     const positions: Vector3[] = [];
     for (let i = 0; i < 15; i++) {
       positions.push(
@@ -70,7 +70,7 @@ export function FloatingCoinModel() {
       );
     }
     return positions;
-  }).current;
+  }, []);
 
   return (
     <>

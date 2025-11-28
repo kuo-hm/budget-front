@@ -11,10 +11,9 @@ interface User {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
-  setTokens: (accessToken: string, refreshToken?: string) => void;
+  setAuth: (user: User, accessToken: string) => void;
+  setTokens: (accessToken: string) => void;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
 }
@@ -25,13 +24,11 @@ export const useAuthStore = create<AuthState>()(
       const initializeFromStorage = () => {
         if (typeof window !== 'undefined') {
           const accessToken = localStorage.getItem('accessToken');
-          const refreshToken = localStorage.getItem('refreshToken');
           const state = get();
           if (accessToken && state.user) {
             return {
               ...state,
               accessToken,
-              refreshToken: refreshToken || state.refreshToken,
               isAuthenticated: true,
             };
           }
@@ -42,42 +39,33 @@ export const useAuthStore = create<AuthState>()(
       return {
         user: null,
         accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
-        setAuth: (user, accessToken, refreshToken) => {
+        setAuth: (user, accessToken) => {
           if (typeof window !== 'undefined') {
             localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('refreshToken', refreshToken);
           }
           set({
             user,
             accessToken,
-            refreshToken,
             isAuthenticated: true,
           });
         },
-        setTokens: (accessToken, refreshToken) => {
+        setTokens: (accessToken) => {
           if (typeof window !== 'undefined') {
             localStorage.setItem('accessToken', accessToken);
-            if (refreshToken) {
-              localStorage.setItem('refreshToken', refreshToken);
-            }
           }
           set({
             accessToken,
-            refreshToken: refreshToken || get().refreshToken,
             isAuthenticated: !!accessToken && !!get().user,
           });
         },
         logout: () => {
           if (typeof window !== 'undefined') {
             localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
           }
           set({
             user: null,
             accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
           });
         },
@@ -91,7 +79,6 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
         if (state && typeof window !== 'undefined') {
