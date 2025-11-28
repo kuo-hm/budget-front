@@ -4,7 +4,6 @@ export interface RegisterData {
   email: string;
   password: string;
   name: string;
-  currency?: string;
 }
 
 export interface LoginData {
@@ -27,9 +26,14 @@ export interface RefreshTokenData {
   refreshToken: string;
 }
 
+export interface VerifyEmailData {
+  token: string;
+  code: string;
+}
+
 export const authApi = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>('/auth/register', data);
+    const response = await apiClient.post<AuthResponse>('/auth/signup', data);
     return response.data;
   },
 
@@ -38,12 +42,14 @@ export const authApi = {
     return response.data;
   },
 
-  refresh: async (refreshToken: string): Promise<{ accessToken: string }> => {
+  refresh: async (): Promise<{ accessToken: string }> => {
     const response = await apiClient.post<{ accessToken: string }>(
-      '/auth/refresh',
-      { refreshToken }
+      '/auth/refresh'
     );
     return response.data;
   },
-};
 
+  verifyEmail: async (data: VerifyEmailData): Promise<void> => {
+    await apiClient.post('/auth/verify-email', data);
+  },
+};
