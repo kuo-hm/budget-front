@@ -32,15 +32,6 @@ export interface UpdateProfileData {
   };
 }
 
-export interface Session {
-  id: string;
-  device: string;
-  browser: string;
-  location?: string;
-  lastActive: string;
-  isCurrent: boolean;
-}
-
 export const userApi = {
   getProfile: async (): Promise<UserProfile> => {
     const response = await apiClient.get<UserProfile>("/user/me");
@@ -48,7 +39,7 @@ export const userApi = {
   },
 
   updateProfile: async (data: UpdateProfileData): Promise<UserProfile> => {
-    const response = await apiClient.patch<UserProfile>("/user/profile", data);
+    const response = await apiClient.patch<UserProfile>("/user/me", data);
     return response.data;
   },
 
@@ -56,22 +47,17 @@ export const userApi = {
     currentPassword: string,
     newPassword: string
   ): Promise<void> => {
-    await apiClient.post("/user/change-password", {
+    await apiClient.patch("/user/me/password", {
       currentPassword,
       newPassword,
     });
   },
 
-  getSessions: async (): Promise<Session[]> => {
-    const response = await apiClient.get<Session[]>("/user/sessions");
-    return response.data;
-  },
-
-  revokeSession: async (sessionId: string): Promise<void> => {
-    await apiClient.delete(`/user/sessions/${sessionId}`);
+  changeEmail: async (newEmail: string): Promise<void> => {
+    await apiClient.patch("/user/me/email", { newEmail });
   },
 
   deleteAccount: async (): Promise<void> => {
-    await apiClient.delete("/user/account");
+    await apiClient.delete("/user/me");
   },
 };
