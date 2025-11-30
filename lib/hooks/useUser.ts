@@ -37,24 +37,14 @@ export function useChangePassword() {
   });
 }
 
-export function useSessions() {
-  return useQuery({
-    queryKey: ["sessions"],
-    queryFn: userApi.getSessions,
-  });
-}
-
-export function useRevokeSession() {
-  const queryClient = useQueryClient();
-
+export function useChangeEmail() {
   return useMutation({
-    mutationFn: userApi.revokeSession,
+    mutationFn: (newEmail: string) => userApi.changeEmail(newEmail),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["sessions"] });
-      toast.success("Session revoked");
+      toast.success("Verification email sent to new address");
     },
     onError: () => {
-      toast.error("Failed to revoke session");
+      toast.error("Failed to update email");
     },
   });
 }

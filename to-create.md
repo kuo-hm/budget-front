@@ -1,0 +1,144 @@
+# Backend Implementation Requirements
+
+This document outlines the missing API endpoints and features that need to be implemented in the backend to fully support the frontend application.
+
+## 1. User Management
+
+### Change Email
+
+- **Endpoint**: `PATCH /user/me/email`
+- **Payload**: `{ "newEmail": "string" }`
+- **Behavior**:
+  1.  Validate that `newEmail` is a valid email and not already in use.
+  2.  Generate a verification token.
+  3.  Send a verification email to `newEmail` containing the token.
+  4.  **Do not** update the user's email immediately. Store the `newEmail` and token temporarily (e.g., in a `pendingEmail` field or a separate collection).
+  5.  Create a separate endpoint (e.g., `POST /auth/verify-email-change`) to handle the token verification and finalize the email update.
+
+### Path Corrections
+
+Ensure the backend exposes these exact paths to match the frontend client:
+
+- **Update Profile**: `PATCH /user/me` (accepts name, avatar, preferences).
+- **Change Password**: `PATCH /user/me/password` (accepts currentPassword, newPassword).
+- **Delete Account**: `DELETE /user/me` (should soft-delete or hard-delete user and all related data).
+
+---
+
+## 2. Budgets
+
+### Update Budget
+
+- **Endpoint**: `PATCH /budgets/{id}`
+- **Payload**: Partial `CreateBudgetDto` (limitAmount, startDate, endDate, categoryId).
+- **Behavior**:
+  - Update the specified fields.
+  - If `amount` or `dates` change, recalculate `percentageUsed` if it's stored in the DB (or let it be calculated on-the-fly).
+
+### Delete Budget
+
+- **Endpoint**: `DELETE /budgets/{id}`
+- **Behavior**:
+  - Remove the budget.
+  - **Note**: This should NOT delete the associated transactions, only the budget limit rule.
+
+---
+
+## 3. Goals
+
+### Update Goal Details
+
+- **Endpoint**: `PATCH /goals/{id}`
+- **Payload**: Partial `CreateGoalDto` (name, targetAmount, targetDate).
+- **Behavior**:
+  - Update the goal's metadata.
+  - **Note**: This is distinct from updating _progress_. This endpoint is for changing the goal itself (e.g., "I want to save $5000 instead of $2000").
+
+### Delete Goal
+
+- **Endpoint**: `DELETE /goals/{id}`
+- **Behavior**:
+  - Remove the goal.
+
+---
+
+## 4. Recurring Transactions
+
+### Update Recurring Transaction
+
+- **Endpoint**: `PATCH /recurring-transactions/{id}`
+
+# Backend Implementation Requirements
+
+This document outlines the missing API endpoints and features that need to be implemented in the backend to fully support the frontend application.
+
+## 1. User Management
+
+### Change Email
+
+- **Endpoint**: `PATCH /user/me/email`
+- **Payload**: `{ "newEmail": "string" }`
+- **Behavior**:
+  1.  Validate that `newEmail` is a valid email and not already in use.
+  2.  Generate a verification token.
+  3.  Send a verification email to `newEmail` containing the token.
+  4.  **Do not** update the user's email immediately. Store the `newEmail` and token temporarily (e.g., in a `pendingEmail` field or a separate collection).
+  5.  Create a separate endpoint (e.g., `POST /auth/verify-email-change`) to handle the token verification and finalize the email update.
+
+### Path Corrections
+
+Ensure the backend exposes these exact paths to match the frontend client:
+
+- **Update Profile**: `PATCH /user/me` (accepts name, avatar, preferences).
+- **Change Password**: `PATCH /user/me/password` (accepts currentPassword, newPassword).
+- **Delete Account**: `DELETE /user/me` (should soft-delete or hard-delete user and all related data).
+
+---
+
+## 2. Budgets
+
+### Update Budget
+
+- **Endpoint**: `PATCH /budgets/{id}`
+- **Payload**: Partial `CreateBudgetDto` (limitAmount, startDate, endDate, categoryId).
+- **Behavior**:
+  - Update the specified fields.
+  - If `amount` or `dates` change, recalculate `percentageUsed` if it's stored in the DB (or let it be calculated on-the-fly).
+
+### Delete Budget
+
+- **Endpoint**: `DELETE /budgets/{id}`
+- **Behavior**:
+  - Remove the budget.
+  - **Note**: This should NOT delete the associated transactions, only the budget limit rule.
+
+---
+
+## 3. Goals
+
+### Update Goal Details
+
+- **Endpoint**: `PATCH /goals/{id}`
+- **Payload**: Partial `CreateGoalDto` (name, targetAmount, targetDate).
+- **Behavior**:
+  - Update the goal's metadata.
+  - **Note**: This is distinct from updating _progress_. This endpoint is for changing the goal itself (e.g., "I want to save $5000 instead of $2000").
+
+### Delete Goal
+
+- **Endpoint**: `DELETE /goals/{id}`
+- **Behavior**:
+  - Remove the goal.
+
+---
+
+## 4. Recurring Transactions
+
+### Update Recurring Transaction
+
+- **Endpoint**: `PATCH /recurring-transactions/{id}`
+- **Payload**: Partial `CreateRecurringTransactionDto` (amount, description, frequency, startDate, endDate, categoryId).
+- **Behavior**:
+  - Update the rule.
+  - **Critical**: If `frequency` or `startDate` changes, recalculate the `nextRunDate`.
+  - If `amount` changes, it should only affect _future_ transactions generated by this rule, not past ones.
