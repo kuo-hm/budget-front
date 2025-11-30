@@ -1,68 +1,111 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useAuth } from '@/lib/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { slideInFromRight } from '@/lib/utils/animations';
-import { Lock, Mail, Eye, EyeOff, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { slideInFromRight } from "@/lib/utils/animations";
+import { Lock, Mail, Eye, EyeOff, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
-  const { login, isLoading, error } = useAuth();
+  const { login, isLoading, error, refreshAccessToken } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login({ email, password });
     } catch (err) {
-      console.error('Login error:', err);
+      console.error("Login error:", err);
     }
   };
 
-  const openOAuthPopup = (provider: 'google' | 'github') => {
+  const openOAuthPopup = (provider: "google" | "github") => {
     setOauthLoading(provider);
-    const width = 500;
-    const height = 600;
+
+    const width = 700;
+    const height = 800;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/auth/${provider}`;
+    const url = `${
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
+    }/auth/${provider}`;
 
     const popup = window.open(
       url,
-      'OAuth',
+      "OAuth",
       `width=${width},height=${height},left=${left},top=${top}`
     );
 
-    // Poll to check if popup is closed
-    const pollTimer = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(pollTimer);
-        setOauthLoading(null);
-      }
-    }, 500);
-  };
+    console.log("OAuth popup opened", popup);
 
-  useEffect(() => {
+    // --- Listen for success from popup ---
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-
-      if (event.data.type === 'OAUTH_SUCCESS') {
-        window.location.href = '/dashboard';
+      if (event.data?.type === "OAUTH_SUCCESS") {
+        console.log("OAuth success message received");
+        setOauthLoading(null);
+        popup?.close();
+        window.removeEventListener("message", handleMessage);
       }
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+    window.addEventListener("message", handleMessage);
+
+    // --- Fallback: detect if user manually closes the popup ---
+    // We removed the polling check because it was unreliable with cross-origin redirects.
+    // Instead, we provide a manual "Cancel" button in the UI.
+  };
+
+  useEffect(() => {
+    const handleSuccess = async () => {
+      try {
+        await refreshAccessToken();
+        window.location.href = "/dashboard";
+      } catch (err) {
+        console.error(
+          "OAuth success received but session refresh failed:",
+          err
+        );
+      }
+    };
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data.type === "OAUTH_SUCCESS") {
+        handleSuccess();
+      }
+    };
+
+    // Listen to window messages (legacy/backup)
+    window.addEventListener("message", handleMessage);
+
+    // Listen to BroadcastChannel (robust)
+    const channel = new BroadcastChannel("auth_channel");
+    channel.onmessage = (event) => {
+      if (event.data.type === "OAUTH_SUCCESS") {
+        handleSuccess();
+      }
+    };
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      channel.close();
+    };
+  }, [refreshAccessToken]);
 
   return (
     <motion.div
@@ -76,15 +119,13 @@ export function LoginForm() {
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="mx-auto mb-4 rounded-full bg-primary/10 p-3 w-fit"
           >
             <Lock className="h-6 w-6 text-primary" />
           </motion.div>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>
-            Sign in to your account to continue
-          </CardDescription>
+          <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -98,7 +139,10 @@ export function LoginForm() {
               </motion.div>
             )}
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium flex items-center gap-2"
+              >
                 <Mail className="h-4 w-4" />
                 Email
               </label>
@@ -114,14 +158,17 @@ export function LoginForm() {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium flex items-center gap-2">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium flex items-center gap-2"
+              >
                 <Lock className="h-4 w-4" />
                 Password
               </label>
               <div className="relative">
                 <Input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -134,7 +181,11 @@ export function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -160,7 +211,7 @@ export function LoginForm() {
               className="w-full"
               disabled={isLoading || !!oauthLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
 
             <div className="relative my-4">
@@ -168,7 +219,9 @@ export function LoginForm() {
                 <span className="w-full border-t border-border"></span>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -177,10 +230,10 @@ export function LoginForm() {
                 variant="outline"
                 type="button"
                 disabled={isLoading || !!oauthLoading}
-                onClick={() => openOAuthPopup('google')}
+                onClick={() => openOAuthPopup("google")}
                 className="cursor-pointer"
               >
-                {oauthLoading === 'google' ? (
+                {oauthLoading === "google" ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -208,13 +261,17 @@ export function LoginForm() {
                 variant="outline"
                 type="button"
                 disabled={isLoading || !!oauthLoading}
-                onClick={() => openOAuthPopup('github')}
+                onClick={() => openOAuthPopup("github")}
                 className="cursor-pointer"
               >
-                {oauthLoading === 'github' ? (
+                {oauthLoading === "github" ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="mr-2 h-4 w-4"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.419-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
                   </svg>
                 )}
@@ -222,9 +279,24 @@ export function LoginForm() {
               </Button>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/register" className="text-primary hover:underline font-medium">
+            {!!oauthLoading && (
+              <div className="text-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => setOauthLoading(null)}
+                  className="text-xs text-muted-foreground hover:text-primary underline"
+                >
+                  Cancel connection
+                </button>
+              </div>
+            )}
+
+            <div className="text-center text-sm text-muted-foreground pt-4">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="text-primary hover:underline font-medium"
+              >
                 Sign up
               </Link>
             </div>

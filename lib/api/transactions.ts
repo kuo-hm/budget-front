@@ -1,12 +1,14 @@
-import apiClient from './client';
+import apiClient from "./client";
+import { Category } from "./categories";
 
 export interface Transaction {
   id: string;
   amount: number;
-  type: 'INCOME' | 'EXPENSE';
-  category: string;
-  date: string;
   description?: string;
+  date: string;
+  categoryId: string;
+  category: Category;
+  userId: string;
   currency: string;
   createdAt: string;
   updatedAt: string;
@@ -14,15 +16,14 @@ export interface Transaction {
 
 export interface CreateTransactionData {
   amount: number;
-  type: 'INCOME' | 'EXPENSE';
-  category: string;
-  date: string;
-  description?: string;
   currency: string;
+  description?: string;
+  date: string;
+  categoryId: string;
 }
 
 export interface UpdateTransactionData extends Partial<CreateTransactionData> {
-  id: string;
+  id?: string;
 }
 
 export interface TransactionFilters {
@@ -30,11 +31,11 @@ export interface TransactionFilters {
   limit?: number;
   startDate?: string;
   endDate?: string;
-  type?: 'INCOME' | 'EXPENSE';
-  category?: string;
+  type?: "INCOME" | "EXPENSE" | "SAVING";
+  categoryId?: string;
   search?: string;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface TransactionsResponse {
@@ -47,11 +48,36 @@ export interface TransactionsResponse {
   };
 }
 
+export interface TransactionSummary {
+  totalIncome: number;
+  totalExpense: number;
+  totalSaving: number;
+  netBalance: number;
+}
+
 export const transactionsApi = {
-  getAll: async (filters?: TransactionFilters): Promise<TransactionsResponse> => {
-    const response = await apiClient.get<TransactionsResponse>('/transactions', {
-      params: filters,
-    });
+  getAll: async (
+    filters?: TransactionFilters
+  ): Promise<TransactionsResponse> => {
+    const response = await apiClient.get<TransactionsResponse>(
+      "/transactions",
+      {
+        params: filters,
+      }
+    );
+    return response.data;
+  },
+
+  getSummary: async (
+    startDate: string,
+    endDate: string
+  ): Promise<TransactionSummary> => {
+    const response = await apiClient.get<TransactionSummary>(
+      "/transactions/summary",
+      {
+        params: { startDate, endDate },
+      }
+    );
     return response.data;
   },
 
@@ -61,12 +87,18 @@ export const transactionsApi = {
   },
 
   create: async (data: CreateTransactionData): Promise<Transaction> => {
-    const response = await apiClient.post<Transaction>('/transactions', data);
+    const response = await apiClient.post<Transaction>("/transactions", data);
     return response.data;
   },
 
-  update: async (id: string, data: UpdateTransactionData): Promise<Transaction> => {
-    const response = await apiClient.patch<Transaction>(`/transactions/${id}`, data);
+  update: async (
+    id: string,
+    data: UpdateTransactionData
+  ): Promise<Transaction> => {
+    const response = await apiClient.patch<Transaction>(
+      `/transactions/${id}`,
+      data
+    );
     return response.data;
   },
 
@@ -74,7 +106,21 @@ export const transactionsApi = {
     await apiClient.delete(`/transactions/${id}`);
   },
 
-  bulkDelete: async (ids: string[]): Promise<void> => {
-    await apiClient.post('/transactions/bulk-delete', { ids });
+  export: async (filters?: TransactionFilters): Promise<Blob> => {
+    const response = await apiClient.get("/transactions/export", {
+      params: filters,
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
+  import: async (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    await apiClient.post("/transactions/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   },
 };

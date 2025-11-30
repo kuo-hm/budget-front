@@ -1,16 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  transactionsApi, 
-  TransactionFilters, 
-  CreateTransactionData, 
-  UpdateTransactionData 
-} from '@/lib/api/transactions';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  transactionsApi,
+  TransactionFilters,
+  CreateTransactionData,
+  UpdateTransactionData,
+} from "@/lib/api/transactions";
 
 export const TRANSACTION_KEYS = {
-  all: ['transactions'] as const,
-  lists: () => [...TRANSACTION_KEYS.all, 'list'] as const,
-  list: (filters: TransactionFilters) => [...TRANSACTION_KEYS.lists(), filters] as const,
-  details: () => [...TRANSACTION_KEYS.all, 'detail'] as const,
+  all: ["transactions"] as const,
+  lists: () => [...TRANSACTION_KEYS.all, "list"] as const,
+  list: (filters: TransactionFilters) =>
+    [...TRANSACTION_KEYS.lists(), filters] as const,
+  details: () => [...TRANSACTION_KEYS.all, "detail"] as const,
   detail: (id: string) => [...TRANSACTION_KEYS.details(), id] as const,
 };
 
@@ -45,11 +46,13 @@ export function useUpdateTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateTransactionData }) => 
+    mutationFn: ({ id, data }: { id: string; data: UpdateTransactionData }) =>
       transactionsApi.update(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.detail(data.id) });
+      queryClient.invalidateQueries({
+        queryKey: TRANSACTION_KEYS.detail(data.id),
+      });
     },
   });
 }
@@ -65,11 +68,18 @@ export function useDeleteTransaction() {
   });
 }
 
-export function useBulkDeleteTransactions() {
+export function useExportTransactions() {
+  return useMutation({
+    mutationFn: (filters?: TransactionFilters) =>
+      transactionsApi.export(filters),
+  });
+}
+
+export function useImportTransactions() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (ids: string[]) => transactionsApi.bulkDelete(ids),
+    mutationFn: (file: File) => transactionsApi.import(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
     },
