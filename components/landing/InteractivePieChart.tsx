@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useRef, useState, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera, Html, Center, Float } from '@react-three/drei';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { fadeIn } from '@/lib/utils/animations';
-import * as THREE from 'three';
+import { useRef, useState, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { PerspectiveCamera, Html, Center, Float } from "@react-three/drei";
+import { motion } from "framer-motion";
+import { fadeIn } from "@/lib/utils/animations";
+import * as THREE from "three";
 
 const data = [
-  { name: 'Housing', value: 35, color: '#8b5cf6' }, // Violet
-  { name: 'Food', value: 25, color: '#3b82f6' },    // Blue
-  { name: 'Transport', value: 20, color: '#10b981' }, // Emerald
-  { name: 'Entertainment', value: 15, color: '#f59e0b' }, // Amber
-  { name: 'Savings', value: 5, color: '#ef4444' },    // Red
+  { name: "Housing", value: 35, color: "#8b5cf6" }, // Violet
+  { name: "Food", value: 25, color: "#3b82f6" }, // Blue
+  { name: "Transport", value: 20, color: "#10b981" }, // Emerald
+  { name: "Entertainment", value: 15, color: "#f59e0b" }, // Amber
+  { name: "Savings", value: 5, color: "#ef4444" }, // Red
 ];
 
 function PieSlice({
@@ -25,7 +25,7 @@ function PieSlice({
   value,
   isSelected,
   onHover,
-  onOut
+  onOut,
 }: {
   startAngle: number;
   endAngle: number;
@@ -49,13 +49,16 @@ function PieSlice({
     return shape;
   }, [startAngle, endAngle, radius]);
 
-  const extrudeSettings = useMemo(() => ({
-    depth,
-    bevelEnabled: true,
-    bevelThickness: 0.05,
-    bevelSize: 0.05,
-    bevelSegments: 10,
-  }), [depth]);
+  const extrudeSettings = useMemo(
+    () => ({
+      depth,
+      bevelEnabled: true,
+      bevelThickness: 0.05,
+      bevelSize: 0.05,
+      bevelSegments: 10,
+    }),
+    [depth]
+  );
 
   // Calculate center of the slice for label positioning and movement
   const midAngle = (startAngle + endAngle) / 2;
@@ -66,11 +69,17 @@ function PieSlice({
   useFrame((state, delta) => {
     if (meshRef.current) {
       const targetScale = hovered || isSelected ? 1.1 : 1;
-      const targetX = (hovered || isSelected) ? x * 0.2 : 0;
-      const targetY = (hovered || isSelected) ? y * 0.2 : 0;
+      const targetX = hovered || isSelected ? x * 0.2 : 0;
+      const targetY = hovered || isSelected ? y * 0.2 : 0;
 
-      meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, 1), delta * 10);
-      meshRef.current.position.lerp(new THREE.Vector3(targetX, targetY, 0), delta * 10);
+      meshRef.current.scale.lerp(
+        new THREE.Vector3(targetScale, targetScale, 1),
+        delta * 10
+      );
+      meshRef.current.position.lerp(
+        new THREE.Vector3(targetX, targetY, 0),
+        delta * 10
+      );
     }
   });
 
@@ -101,7 +110,7 @@ function PieSlice({
         <Html
           position={[x * radius * 0.8, y * radius * 0.8, depth + 0.5]}
           center
-          style={{ pointerEvents: 'none' }}
+          style={{ pointerEvents: "none" }}
         >
           <div className="bg-background/90 backdrop-blur-md border border-border p-2 rounded-lg shadow-xl text-xs whitespace-nowrap pointer-events-none">
             <div className="font-bold text-foreground">{label}</div>
@@ -116,8 +125,33 @@ function PieSlice({
 function PieChart3D() {
   const groupRef = useRef<THREE.Group>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  let currentAngle = 0;
-  const total = data.reduce((acc, item) => acc + item.value, 0);
+
+  const slices = useMemo(() => {
+    const total = data.reduce((acc, item) => acc + item.value, 0);
+
+    return data.reduce(
+      (acc, item) => {
+        const angle = (item.value / total) * Math.PI * 2;
+        const startAngle = acc.currentAngle;
+        const endAngle = acc.currentAngle + angle;
+
+        acc.items.push({
+          ...item,
+          startAngle,
+          endAngle,
+        });
+        acc.currentAngle += angle;
+        return acc;
+      },
+      {
+        items: [] as ((typeof data)[0] & {
+          startAngle: number;
+          endAngle: number;
+        })[],
+        currentAngle: 0,
+      }
+    ).items;
+  }, []);
 
   useFrame((state, delta) => {
     if (groupRef.current) {
@@ -127,29 +161,24 @@ function PieChart3D() {
   });
 
   return (
-    <group ref={groupRef} scale={[0, 0, 0]} rotation={[0.5, 0, 0]}> {/* Tilt the chart slightly */}
+    <group ref={groupRef} scale={[0, 0, 0]} rotation={[0.5, 0, 0]}>
+      {" "}
+      {/* Tilt the chart slightly */}
       <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
         <Center>
-          {data.map((item, index) => {
-            const angle = (item.value / total) * Math.PI * 2;
-            const startAngle = currentAngle;
-            const endAngle = currentAngle + angle;
-            currentAngle += angle;
-
-            return (
-              <PieSlice
-                key={item.name}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                color={item.color}
-                label={item.name}
-                value={item.value}
-                isSelected={hoveredIndex === index}
-                onHover={() => setHoveredIndex(index)}
-                onOut={() => setHoveredIndex(null)}
-              />
-            );
-          })}
+          {slices.map((item, index) => (
+            <PieSlice
+              key={item.name}
+              startAngle={item.startAngle}
+              endAngle={item.endAngle}
+              color={item.color}
+              label={item.name}
+              value={item.value}
+              isSelected={hoveredIndex === index}
+              onHover={() => setHoveredIndex(index)}
+              onOut={() => setHoveredIndex(null)}
+            />
+          ))}
         </Center>
       </Float>
     </group>
@@ -192,7 +221,11 @@ export function InteractivePieChart() {
             <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={50} />
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={1} castShadow />
-            <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
+            <pointLight
+              position={[-10, -10, -10]}
+              intensity={0.5}
+              color="#3b82f6"
+            />
             <spotLight
               position={[0, 10, 0]}
               intensity={0.8}
@@ -222,4 +255,3 @@ export function InteractivePieChart() {
     </section>
   );
 }
-

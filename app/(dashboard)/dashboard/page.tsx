@@ -1,58 +1,145 @@
-'use client';
+"use client";
 
-import { StatsCard } from '@/components/dashboard/StatsCard';
-import { SpendingTrendsChart } from '@/components/dashboard/SpendingTrendsChart';
-import { CategoryBreakdownChart } from '@/components/dashboard/CategoryBreakdownChart';
-import { RecentTransactions } from '@/components/dashboard/RecentTransactions';
-import { QuickActions } from '@/components/dashboard/QuickActions';
-import { Wallet, ArrowDownCircle, ArrowUpCircle, PiggyBank } from 'lucide-react';
+import {
+  useBudgetPerformance,
+  useCategoryBreakdown,
+  useHealthScore,
+  useIncomeVsExpenses,
+  useMonthlySummary,
+  useSavingsRate,
+  useSpendingTrends,
+  useYearComparison,
+} from "@/lib/hooks/useAnalytics";
+import { MonthlySummaryGrid } from "@/components/analytics/widgets/MonthlySummaryGrid";
+import { HealthScoreGauge } from "@/components/analytics/widgets/HealthScoreGauge";
+import { motion } from "framer-motion";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DashboardPage() {
+const SpendingTrendChart = lazy(() =>
+  import("@/components/analytics/charts/SpendingTrendChart").then((module) => ({
+    default: module.SpendingTrendChart,
+  }))
+);
+const CategoryBreakdownChart = lazy(() =>
+  import("@/components/analytics/charts/CategoryBreakdownChart").then(
+    (module) => ({ default: module.CategoryBreakdownChart })
+  )
+);
+const IncomeVsExpensesChart = lazy(() =>
+  import("@/components/analytics/charts/IncomeVsExpensesChart").then(
+    (module) => ({ default: module.IncomeVsExpensesChart })
+  )
+);
+const BudgetPerformanceChart = lazy(() =>
+  import("@/components/analytics/charts/BudgetPerformanceChart").then(
+    (module) => ({ default: module.BudgetPerformanceChart })
+  )
+);
+const SavingsRateChart = lazy(() =>
+  import("@/components/analytics/charts/SavingsRateChart").then((module) => ({
+    default: module.SavingsRateChart,
+  }))
+);
+const YearComparisonChart = lazy(() =>
+  import("@/components/analytics/charts/YearComparisonChart").then(
+    (module) => ({ default: module.YearComparisonChart })
+  )
+);
+
+export default function AnalyticsPage() {
+  // Fetch data
+  const { data: monthlySummary, isLoading: isSummaryLoading } =
+    useMonthlySummary();
+  const { data: spendingTrends, isLoading: isTrendsLoading } =
+    useSpendingTrends();
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    return {
+      startDate: startOfMonth.toISOString(),
+      endDate: now.toISOString(),
+    };
+  }, []);
+
+  const { data: categoryBreakdown, isLoading: isCategoryLoading } =
+    useCategoryBreakdown(dateRange.startDate, dateRange.endDate);
+  const { data: incomeVsExpenses, isLoading: isIncomeLoading } =
+    useIncomeVsExpenses();
+  const { data: budgetPerformance, isLoading: isBudgetLoading } =
+    useBudgetPerformance();
+  const { data: savingsRate, isLoading: isSavingsLoading } = useSavingsRate();
+  const { data: yearComparison, isLoading: isYearLoading } =
+    useYearComparison();
+  const { data: healthScore, isLoading: isHealthLoading } = useHealthScore();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Stats Row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Balance"
-          value="$12,450.00"
-          icon={Wallet}
-          trend={{ value: 12.5, label: 'from last month' }}
-          delay={0}
-        />
-        <StatsCard
-          title="Total Income"
-          value="$4,250.00"
-          icon={ArrowUpCircle}
-          trend={{ value: 8.2, label: 'from last month' }}
-          delay={0.1}
-        />
-        <StatsCard
-          title="Total Expenses"
-          value="$2,150.00"
-          icon={ArrowDownCircle}
-          trend={{ value: -5.4, label: 'from last month' }}
-          delay={0.2}
-        />
-        <StatsCard
-          title="Total Savings"
-          value="$2,100.00"
-          icon={PiggyBank}
-          trend={{ value: 15.3, label: 'from last month' }}
-          delay={0.3}
-        />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+        <p className="text-muted-foreground">
+          Deep dive into your financial data and performance.
+        </p>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <SpendingTrendsChart />
-        <CategoryBreakdownChart />
+      <MonthlySummaryGrid data={monthlySummary} isLoading={isSummaryLoading} />
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+          <SpendingTrendChart
+            data={spendingTrends}
+            isLoading={isTrendsLoading}
+          />
+        </Suspense>
+        <HealthScoreGauge data={healthScore} isLoading={isHealthLoading} />
       </div>
 
-      {/* Bottom Row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <RecentTransactions />
-        <QuickActions />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+          <IncomeVsExpensesChart
+            data={incomeVsExpenses}
+            isLoading={isIncomeLoading}
+          />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+          <CategoryBreakdownChart
+            data={categoryBreakdown}
+            isLoading={isCategoryLoading}
+          />
+        </Suspense>
       </div>
-    </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+          <BudgetPerformanceChart
+            data={budgetPerformance}
+            isLoading={isBudgetLoading}
+          />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+          <SavingsRateChart data={savingsRate} isLoading={isSavingsLoading} />
+        </Suspense>
+      </div>
+
+      <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+        <YearComparisonChart data={yearComparison} isLoading={isYearLoading} />
+      </Suspense>
+    </motion.div>
   );
 }

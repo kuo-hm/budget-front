@@ -1,0 +1,155 @@
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useUpdateProfile, useUserProfile } from "@/lib/hooks/useUser";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
+
+const profileFormSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  avatarUrl: z
+    .string()
+    .url({ message: "Please enter a valid URL." })
+    .optional()
+    .or(z.literal("")),
+});
+
+type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+export function ProfileForm() {
+  const { data: user, isLoading } = useUserProfile();
+  const { mutate: updateProfile, isPending } = useUpdateProfile();
+
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      name: "",
+      avatarUrl: "",
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.user.name,
+        avatarUrl: user.user.avatar || "",
+      });
+    }
+  }, [user, form]);
+
+  function onSubmit(data: ProfileFormValues) {
+    updateProfile(
+      {
+        name: data.name,
+        avatar: data.avatarUrl || undefined,
+      },
+      {
+        onError: (error: any) => {
+          console.error("Profile update error:", error);
+        },
+      }
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-20 w-20 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[200px]" />
+            <Skeleton className="h-4 w-[150px]" />
+          </div>
+        </div>
+        <Skeleton className="h-[200px] w-full" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-4 rounded-md bg-destructive/10 text-destructive">
+        Failed to load profile data. Please try refreshing the page.
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="flex items-center gap-x-6">
+          <Avatar className="h-20 w-20">
+            {/* eslint-disable-next-line react-hooks/incompatible-library */}
+            <AvatarImage src={form.watch("avatarUrl") || user?.user.avatar} />
+            <AvatarFallback>{user?.user.name?.charAt(0) || "U"}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="text-lg font-medium">Profile Picture</h3>
+            <p className="text-sm text-muted-foreground">
+              Enter a URL for your avatar image.
+            </p>
+          </div>
+        </div>
+
+        <FormField
+          control={form.control}
+          name="avatarUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Avatar URL</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="https://example.com/avatar.png"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>
+                We support any public image URL.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Your name" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={isPending}>
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Update profile
+        </Button>
+      </form>
+    </Form>
+  );
+}

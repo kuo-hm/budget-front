@@ -9,16 +9,19 @@ Build a **stunning, modern** Next.js web application for the Budget Tracker API 
 ## Technology Stack
 
 ### Core Framework
+
 - **Next.js 14+** (App Router)
 - **TypeScript** for type safety
 - **React 18+**
 
 ### Styling & UI
+
 - **Tailwind CSS** for utility-first styling
 - **shadcn/ui** for beautiful, accessible components
 - **Lucide React** for icons
 
 ### Animations & 3D
+
 - **Framer Motion** for smooth UI animations and transitions
 - **Three.js + React Three Fiber** for 3D graphics
 - **Three Drei** for Three.js helpers
@@ -26,15 +29,18 @@ Build a **stunning, modern** Next.js web application for the Budget Tracker API 
 - **Lenis** for smooth scrolling
 
 ### State Management & Data Fetching
+
 - **TanStack Query (React Query)** for server state
 - **Zustand** for client state
 - **Axios** for API calls
 
 ### Visualization
+
 - **Recharts** or **Chart.js** for financial charts
 - **React-Calendar-Heatmap** for spending heatmap
 
 ### Authentication
+
 - **NextAuth.js** for authentication
 - **JWT** token management
 
@@ -122,6 +128,7 @@ budget-tracker-frontend/
 #### Sections:
 
 **Hero Section**
+
 - **3D Background:** Animated floating coins/currency symbols using Three.js
 - **Headline:** "Master Your Money with AI-Powered Insights"
 - **Subheadline:** "Track expenses, set budgets, achieve goals - all in one beautiful platform"
@@ -129,11 +136,13 @@ budget-tracker-frontend/
 - **GSAP Scroll Animation:** Parallax effect on 3D elements, fade-in text on scroll
 
 **3D Interactive Section**
+
 - **Three.js Scene:** Rotating 3D pie chart showing category breakdown
 - **User Interaction:** Mouse move affects rotation/camera angle
 - **Scroll Trigger:** Chart assembles piece by piece as user scrolls
 
 **Features Section** (Cards with Framer Motion)
+
 - Real-time expense tracking
 - Smart budget alerts
 - Multi-currency support
@@ -143,19 +152,23 @@ budget-tracker-frontend/
 - **Animation:** Cards slide in from bottom with stagger effect
 
 **Analytics Preview**
+
 - Live demo of dashboard charts
 - Animated number counters
 - **GSAP ScrollTrigger:** Charts draw/animate when in viewport
 
 **Testimonials** (Optional)
+
 - Carousel with smooth transitions
 - **Framer Motion:** Fade + slide animations
 
 **Pricing** (If applicable)
+
 - Feature comparison table
 - **Hover Effects:** Scale + glow on hover
 
 **Footer**
+
 - Links, social media
 - Newsletter signup
 
@@ -164,6 +177,7 @@ budget-tracker-frontend/
 ### 2. Authentication Pages
 
 #### Login (`/login`)
+
 - **Design:** Glassmorphism card on gradient background
 - **3D Element:** Floating lock icon (Three.js) in background
 - **Animation:** Form inputs slide in from right
@@ -171,6 +185,7 @@ budget-tracker-frontend/
 - **Social Login:** Google, GitHub (optional)
 
 #### Register (`/register`)
+
 - Similar design to login
 - **Additional Fields:** Name, Currency preference
 - **Animation:** Multi-step form with progress indicator
@@ -183,7 +198,9 @@ budget-tracker-frontend/
 **Layout:** Sidebar + Top Header + Main Content
 
 #### Overview Tab
+
 **Key Metrics Cards** (Animated with Framer Motion)
+
 - Total Income (current month)
 - Total Expenses (current month)
 - Net Savings
@@ -191,19 +208,23 @@ budget-tracker-frontend/
 - **Animation:** Count-up effect on mount
 
 **Charts Section**
+
 - **Spending Trends:** Line chart (last 6 months)
 - **Category Breakdown:** Animated donut chart
 - **Budget Performance:** Progress bars with percentage
 
 **Recent Transactions**
+
 - Last 5 transactions
 - Quick actions (edit, delete)
 
 **Upcoming Bills**
+
 - Recurring transactions due soon
 - Badge indicators for urgency
 
 **Quick Actions**
+
 - Add Transaction (Modal)
 - Create Budget
 - Set Goal
@@ -214,6 +235,7 @@ budget-tracker-frontend/
 ### 4. Transactions (`/transactions`)
 
 **Features:**
+
 - **List View:** Paginated table with sorting
 - **Filters:** Date range, category, type
 - **Search:** Real-time search
@@ -225,6 +247,7 @@ budget-tracker-frontend/
   - Modal: Scale + fade in
 
 **Columns:**
+
 - Date, Description, Category, Amount, Currency, Actions
 
 ---
@@ -234,6 +257,7 @@ budget-tracker-frontend/
 **Layout:** Grid of budget cards
 
 **Budget Card Design:**
+
 - Category name + icon
 - Progress bar (animated fill)
 - Spent / Limit
@@ -244,6 +268,7 @@ budget-tracker-frontend/
   - Red: ≥100%
 
 **Add Budget Modal:**
+
 - Category selector
 - Amount input
 - Date range picker
@@ -256,6 +281,7 @@ budget-tracker-frontend/
 **Layout:** Card grid
 
 **Goal Card:**
+
 - Goal name
 - Progress circle (animated SVG)
 - Current / Target amount
@@ -264,6 +290,7 @@ budget-tracker-frontend/
 - **Confetti Animation:** When goal is completed
 
 **Add Goal Modal:**
+
 - Name, Target Amount, Target Date
 - **Framer Motion:** Slide up transition
 
@@ -276,43 +303,51 @@ budget-tracker-frontend/
 #### Sections:
 
 **Financial Health Score**
+
 - **Gauge Chart:** Radial progress (0-100)
 - Score breakdown by factor
 - Recommendations list
 - **Animation:** Arc animates from 0 to score
 
 **Spending Trends**
+
 - Multi-line chart (Income vs Expenses)
 - Period selector (monthly, weekly, daily)
 - **GSAP:** Chart draws on scroll
 
 **Top Categories**
+
 - Horizontal bar chart
 - Shows top 5 categories
 - **Framer Motion:** Bars extend on mount
 
 **Monthly Summary**
+
 - Comprehensive grid layout
 - Income, Expenses, Savings Rate
 - Budget status overview
 - Goal progress
 
 **Spending Heatmap**
+
 - Calendar heatmap for entire year
 - Color intensity = spending amount
 - Tooltip on hover
 
 **Year Comparison**
+
 - Side-by-side comparison
 - Percentage change indicators
 - **Animation:** Comparison bars slide in
 
 **Cash Flow Projection**
+
 - Timeline visualization
 - Projected balance over time
 - Based on recurring transactions
 
 **Savings Rate Trend**
+
 - Area chart showing savings rate over time
 - Trend indicator (improving/declining)
 
@@ -323,6 +358,7 @@ budget-tracker-frontend/
 ### Color Palette
 
 **Dark Theme (Primary):**
+
 ```css
 --background: 0 0% 8%
 --foreground: 0 0% 98%
@@ -337,6 +373,7 @@ budget-tracker-frontend/
 ```
 
 **Light Theme (Optional):**
+
 ```css
 --background: 0 0% 100%
 --foreground: 0 0% 8%
@@ -345,11 +382,13 @@ budget-tracker-frontend/
 ```
 
 ### Typography
+
 - **Headings:** Inter / Manrope (Bold)
 - **Body:** Inter (Regular, Medium)
 - **Mono:** JetBrains Mono (for numbers)
 
 ### Spacing Scale
+
 - Consistent 4px base unit
 - Use Tailwind's default spacing
 
@@ -360,24 +399,27 @@ budget-tracker-frontend/
 ### Framer Motion Variants
 
 **Page Transitions:**
+
 ```tsx
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
-}
+  exit: { opacity: 0, y: -20 },
+};
 ```
 
 **Stagger Children:**
+
 ```tsx
 const containerVariants = {
   animate: {
-    transition: { staggerChildren: 0.1 }
-  }
-}
+    transition: { staggerChildren: 0.1 },
+  },
+};
 ```
 
 **Card Hover:**
+
 ```tsx
 whileHover={{ scale: 1.02, y: -5 }}
 transition={{ type: "spring", stiffness: 300 }}
@@ -386,27 +428,74 @@ transition={{ type: "spring", stiffness: 300 }}
 ### GSAP Scroll Triggers
 
 **Chart Animation:**
+
 ```tsx
 gsap.from(".chart", {
   scrollTrigger: {
     trigger: ".chart",
-    start: "top 80%"
+    start: "top 80%",
   },
   opacity: 0,
   y: 50,
-  duration: 1
-})
+  duration: 1,
+});
 ```
 
 **Parallax:**
+
 ```tsx
 gsap.to(".float-element", {
   scrollTrigger: {
-    scrub: true
+    scrub: true,
   },
-  y: -100
-})
+  y: -100,
+});
 ```
+
+---
+
+### 8. Recurring Transactions (`/recurring`)
+
+**Features:**
+
+- **List View:** Active recurring payments
+- **Frequency Badge:** Daily, Weekly, Monthly, Yearly
+- **Next Due Date:** Calculated automatically
+- **Actions:** Edit, Delete, Pause (Toggle)
+
+**Add/Edit Modal:**
+
+- Amount, Description, Category
+- Frequency selector
+- Start/End Date picker
+
+---
+
+### 9. Settings (`/settings`)
+
+**Layout:** Tabs (Profile, Security, Categories, Sessions)
+
+**Profile Tab:**
+
+- Update Name/Avatar
+- Change Base Currency
+
+**Security Tab:**
+
+- Change Password
+- Change Email (with verification)
+- Two-Factor Auth (Future)
+
+**Categories Tab:**
+
+- List of custom categories
+- Add/Edit/Delete categories
+- Icon selector
+
+**Sessions Tab:**
+
+- List active sessions (Device, IP, Last Active)
+- Revoke specific or all sessions
 
 ---
 
@@ -416,51 +505,80 @@ gsap.to(".float-element", {
 
 ```typescript
 // lib/api/client.ts
-import axios from 'axios';
+import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
+  withCredentials: true, // Important for cookies
 });
 
-// Add JWT token to requests
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Interceptors handle 401 token refreshes automatically
 ```
 
 ### API Endpoints to Implement
 
 **Authentication:**
-- `POST /auth/register`
+
+- `POST /auth/signup`
 - `POST /auth/login`
 - `POST /auth/refresh`
+- `POST /auth/logout`
+- `POST /auth/verify-email`
+- `POST /auth/resend-verification`
+- `POST /auth/forgot-password`
+- `POST /auth/reset-password`
+- `POST /auth/revoke`
+- `POST /auth/revoke-all`
+- `GET /auth/tokens`
+
+**User:**
+
+- `GET /user/me`
+- `PATCH /user/me`
+- `PATCH /user/me/password`
+- `PATCH /user/me/email`
+- `DELETE /user/me`
+
+**Categories:**
+
+- `GET /categories`
+- `POST /categories`
+- `PATCH /categories/:id`
+- `DELETE /categories/:id`
 
 **Transactions:**
+
 - `GET /transactions` (with filters)
 - `POST /transactions`
 - `PATCH /transactions/:id`
 - `DELETE /transactions/:id`
+- `GET /transactions/summary`
 - `GET /transactions/export` (CSV)
 - `POST /transactions/import` (CSV)
 
+**Recurring Transactions:**
+
+- `GET /recurring-transactions`
+- `POST /recurring-transactions`
+- `DELETE /recurring-transactions/:id`
+
 **Budgets:**
+
 - `GET /budgets`
 - `POST /budgets`
 - `GET /budgets/:id`
 
 **Goals:**
+
 - `GET /goals`
 - `POST /goals`
 - `PATCH /goals/:id/progress`
 
 **Analytics (All 11 endpoints):**
+
 - `GET /analytics/category-breakdown`
 - `GET /analytics/spending-trends`
 - `GET /analytics/income-vs-expenses`
@@ -479,19 +597,19 @@ apiClient.interceptors.request.use((config) => {
 
 ```typescript
 // lib/hooks/useAnalytics.ts
-import { useQuery } from '@tanstack/react-query';
-import * as analyticsApi from '@/lib/api/analytics';
+import { useQuery } from "@tanstack/react-query";
+import * as analyticsApi from "@/lib/api/analytics";
 
 export const useSpendingTrends = (period: string, periods: number) => {
   return useQuery({
-    queryKey: ['spending-trends', period, periods],
+    queryKey: ["spending-trends", period, periods],
     queryFn: () => analyticsApi.getSpendingTrends({ period, periods }),
   });
 };
 
 export const useHealthScore = () => {
   return useQuery({
-    queryKey: ['health-score'],
+    queryKey: ["health-score"],
     queryFn: analyticsApi.getHealthScore,
   });
 };
@@ -523,11 +641,13 @@ export const useHealthScore = () => {
 ## Responsive Design
 
 **Breakpoints:**
+
 - Mobile: 0-640px
 - Tablet: 641-1024px
 - Desktop: 1025px+
 
 **Mobile Considerations:**
+
 - Hamburger menu for sidebar
 - Stacked cards on mobile
 - Touch-friendly button sizes (min 44px)
@@ -538,6 +658,7 @@ export const useHealthScore = () => {
 ## Development Roadmap
 
 ### Phase 1: Foundation (Week 1)
+
 - [ ] Next.js project setup
 - [ ] Install dependencies (Framer Motion, Three.js, GSAP, etc.)
 - [ ] Configure Tailwind + shadcn/ui
@@ -545,11 +666,13 @@ export const useHealthScore = () => {
 - [ ] Landing page with 3D hero
 
 ### Phase 2: Authentication (Week 1)
+
 - [ ] Login/Register pages
 - [ ] JWT token management
 - [ ] Protected routes
 
 ### Phase 3: Core Features (Week 2-3)
+
 - [ ] Dashboard overview
 - [ ] Transactions CRUD
 - [ ] Budgets management
@@ -557,12 +680,14 @@ export const useHealthScore = () => {
 - [ ] Recurring transactions
 
 ### Phase 4: Analytics (Week 4)
+
 - [ ] Implement all 11 analytics endpoints
 - [ ] Create chart components
 - [ ] Health score visualization
 - [ ] Heatmap calendar
 
 ### Phase 5: Polish (Week 5)
+
 - [ ] Add all animations
 - [ ] Responsive optimization
 - [ ] Performance tuning
@@ -630,12 +755,14 @@ NEXTAUTH_URL=http://localhost:3000
 ## Resources & Examples
 
 **Inspiration:**
+
 - [Linear](https://linear.app) - Smooth animations
 - [Stripe](https://stripe.com) - Clean UI, great charts
 - [Vercel](https://vercel.com) - Landing page animations
 - [Framer](https://framer.com) - 3D elements
 
 **Libraries Documentation:**
+
 - [Framer Motion](https://www.framer.com/motion/)
 - [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
 - [GSAP](https://greensock.com/docs/)

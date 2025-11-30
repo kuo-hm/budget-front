@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useFrame } from '@react-three/fiber';
-import { useRef, useMemo } from 'react';
-import { Mesh, Vector3 } from 'three';
-import * as THREE from 'three';
+import { useFrame } from "@react-three/fiber";
+import { useRef, useMemo, useState, useEffect } from "react";
+import { Mesh, Vector3 } from "three";
+import * as THREE from "three";
 
 interface CoinProps {
   position: Vector3;
@@ -16,8 +16,10 @@ function Coin({ position, speed }: CoinProps) {
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.01;
-      meshRef.current.position.y = position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5;
-      meshRef.current.position.x = position.x + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3;
+      meshRef.current.position.y =
+        position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5;
+      meshRef.current.position.x =
+        position.x + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3;
     }
   });
 
@@ -36,18 +38,24 @@ function Coin({ position, speed }: CoinProps) {
 }
 
 export function FloatingCoins() {
-  const coins = useMemo(() => {
-    const positions: Vector3[] = [];
+  const [coins, setCoins] = useState<{ position: Vector3; speed: number }[]>(
+    []
+  );
+
+  useEffect(() => {
+    const items: { position: Vector3; speed: number }[] = [];
     for (let i = 0; i < 15; i++) {
-      positions.push(
-        new Vector3(
+      items.push({
+        position: new Vector3(
           (Math.random() - 0.5) * 20,
           (Math.random() - 0.5) * 10,
           (Math.random() - 0.5) * 10
-        )
-      );
+        ),
+        speed: 0.5 + Math.random() * 0.5,
+      });
     }
-    return positions;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCoins(items);
   }, []);
 
   return (
@@ -55,14 +63,9 @@ export function FloatingCoins() {
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1} />
       <pointLight position={[-10, -10, -10]} intensity={0.5} color="#3b82f6" />
-      {coins.map((position, index) => (
-        <Coin
-          key={index}
-          position={position}
-          speed={0.5 + Math.random() * 0.5}
-        />
+      {coins.map((coin, index) => (
+        <Coin key={index} position={coin.position} speed={coin.speed} />
       ))}
     </>
   );
 }
-

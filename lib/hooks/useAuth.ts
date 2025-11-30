@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/authStore';
-import { authApi, type LoginData, type RegisterData } from '@/lib/api/auth';
-import { useState, useCallback } from 'react';
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/store/authStore";
+import { authApi, type LoginData, type RegisterData } from "@/lib/api/auth";
+import { useState, useCallback } from "react";
 
 export function useAuth() {
   const router = useRouter();
@@ -20,46 +20,66 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const login = useCallback(async (data: LoginData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await authApi.login(data);
-      setAuth(response.user, response.accessToken);
-      router.push('/dashboard');
-      return response;
-    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-      const errorMessage =
-        err.response?.data?.message || 'Login failed. Please try again.';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [router, setAuth]);
+  const login = useCallback(
+    async (data: LoginData) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await authApi.login(data);
+        setAuth(response.user, response.accessToken);
+        router.push("/dashboard");
+        return response;
+      } catch (err: unknown) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error = err as any;
+        const errorMessage =
+          error.response?.data?.message || "Login failed. Please try again.";
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [router, setAuth]
+  );
 
-  const register = useCallback(async (data: RegisterData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await authApi.register(data);
-      setAuth(response.user, response.accessToken);
-      router.push('/dashboard');
-      return response;
-    } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-      const errorMessage =
-        err.response?.data?.message || 'Registration failed. Please try again.';
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [router, setAuth]);
+  const register = useCallback(
+    async (data: RegisterData) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await authApi.register(data);
+        setAuth(response.user, response.accessToken);
+        router.push("/dashboard");
+        return response;
+      } catch (err: unknown) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error = err as any;
+        const errorMessage =
+          error.response?.data?.message ||
+          "Registration failed. Please try again.";
+        setError(errorMessage);
+        throw new Error(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [router, setAuth]
+  );
 
-  const logout = useCallback(() => {
-    storeLogout();
-    if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-      router.push('/login');
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      storeLogout();
+      if (
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/register"
+      ) {
+        router.push("/login");
+      }
     }
   }, [router, storeLogout]);
 
@@ -69,10 +89,10 @@ export function useAuth() {
       setTokens(response.accessToken);
       return response.accessToken;
     } catch (err) {
-      logout();
+      storeLogout();
       throw err;
     }
-  }, [setTokens, logout]);
+  }, [setTokens, storeLogout]);
 
   return {
     user,
@@ -87,4 +107,3 @@ export function useAuth() {
     updateUser,
   };
 }
-
