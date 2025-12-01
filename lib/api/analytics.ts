@@ -9,13 +9,19 @@ export interface CategoryBreakdown {
 
 export interface SpendingTrend {
   date: string;
-  amount: number;
+  income: number;
+  expenses: number;
 }
 
 export interface IncomeVsExpenses {
-  period: string;
   income: number;
   expenses: number;
+  netSavings: number;
+  savingsRate: number;
+  period: {
+    startDate: string;
+    endDate: string;
+  };
 }
 
 export interface TopCategory {
@@ -33,18 +39,45 @@ export interface MonthlySummary {
   savingsRate: number;
 }
 
-export interface BudgetPerformance {
-  budgetId: string;
-  categoryName: string;
-  limitAmount: number;
-  spentAmount: number;
+export interface BudgetPerformanceItem {
+  category: string;
+  limit: number;
+  spent: number;
+  remaining: number;
   percentageUsed: number;
-  status: "OK" | "WARNING" | "CRITICAL";
+  status: "on-track" | "warning" | "over";
+  period: {
+    startDate: string;
+    endDate: string;
+  };
 }
 
-export interface SavingsRateTrend {
-  date: string;
-  rate: number;
+export interface BudgetPerformanceResponse {
+  budgets: BudgetPerformanceItem[];
+  summary: {
+    total: number;
+    onTrack: number;
+    warning: number;
+    over: number;
+  };
+}
+
+export interface SavingsRateMonth {
+  month: string;
+  income: number;
+  expenses: number;
+  savings: number;
+  savingsRate: number;
+}
+
+export interface SavingsRateResponse {
+  averageSavingsRate: number;
+  trend: string;
+  monthlyBreakdown: SavingsRateMonth[];
+  period: {
+    startDate: string;
+    endDate: string;
+  };
 }
 
 export interface CashFlow {
@@ -62,10 +95,40 @@ export interface HeatmapData {
   intensity: number; // 0-4
 }
 
-export interface YearComparison {
+export interface YearComparisonMonth {
   month: string;
+  currentYear: {
+    income: number;
+    expenses: number;
+    savings: number;
+  };
+  previousYear: {
+    income: number;
+    expenses: number;
+    savings: number;
+  };
+  changes: {
+    income: number;
+    expenses: number;
+  };
+}
+
+export interface YearComparisonResponse {
   currentYear: number;
   previousYear: number;
+  monthlyComparison: YearComparisonMonth[];
+  yearlyTotals: {
+    currentYear: {
+      income: number;
+      expenses: number;
+      savings: number;
+    };
+    previousYear: {
+      income: number;
+      expenses: number;
+      savings: number;
+    };
+  };
 }
 
 export interface HealthScore {
@@ -108,8 +171,8 @@ export const analyticsApi = {
   getIncomeVsExpenses: async (
     startDate?: string,
     endDate?: string
-  ): Promise<IncomeVsExpenses[]> => {
-    const response = await apiClient.get<IncomeVsExpenses[]>(
+  ): Promise<IncomeVsExpenses> => {
+    const response = await apiClient.get<IncomeVsExpenses>(
       "/analytics/income-vs-expenses",
       {
         params: { startDate, endDate },
@@ -142,8 +205,8 @@ export const analyticsApi = {
     return response.data;
   },
 
-  getBudgetPerformance: async (): Promise<BudgetPerformance[]> => {
-    const response = await apiClient.get<BudgetPerformance[]>(
+  getBudgetPerformance: async (): Promise<BudgetPerformanceResponse> => {
+    const response = await apiClient.get<BudgetPerformanceResponse>(
       "/analytics/budget-performance"
     );
     return response.data;
@@ -151,8 +214,8 @@ export const analyticsApi = {
 
   getSavingsRate: async (
     period: "month" | "quarter" | "year" = "year"
-  ): Promise<SavingsRateTrend[]> => {
-    const response = await apiClient.get<SavingsRateTrend[]>(
+  ): Promise<SavingsRateResponse> => {
+    const response = await apiClient.get<SavingsRateResponse>(
       "/analytics/savings-rate",
       {
         params: { period },
@@ -181,8 +244,8 @@ export const analyticsApi = {
     return response.data;
   },
 
-  getYearComparison: async (year?: number): Promise<YearComparison[]> => {
-    const response = await apiClient.get<YearComparison[]>(
+  getYearComparison: async (year?: number): Promise<YearComparisonResponse> => {
+    const response = await apiClient.get<YearComparisonResponse>(
       "/analytics/year-comparison",
       {
         params: { year },

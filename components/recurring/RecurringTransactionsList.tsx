@@ -20,10 +20,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 export function RecurringTransactionsList() {
   const { data: transactions, isLoading, error } = useRecurringTransactions();
   const { data: categories } = useCategories();
+  const { format: formatCurrency } = useCurrency();
   const deleteMutation = useDeleteRecurringTransaction();
 
   const getCategoryName = (categoryId: string) => {
@@ -100,18 +102,13 @@ export function RecurringTransactionsList() {
               <TableHead>Next Run</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          </TableHeader>
-          <TableBody>
             {transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell className="font-medium">
                   {transaction.description}
                 </TableCell>
                 <TableCell>
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "USD", // Assuming USD for now as per schema default
-                  }).format(transaction.amount)}
+                  {formatCurrency(transaction.amount)}
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">{transaction.frequency}</Badge>

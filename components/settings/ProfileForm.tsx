@@ -19,6 +19,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { currencies } from "@/lib/constants/currencies";
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -29,9 +37,17 @@ const profileFormSchema = z.object({
     .url({ message: "Please enter a valid URL." })
     .optional()
     .or(z.literal("")),
+  baseCurrency: z.string().min(3, {
+    message: "Please select a currency.",
+  }),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+const mappedCurrencies = currencies.map((currency) => ({
+  value: currency.code,
+  label: `${currency.name} (${currency.symbol})`,
+}));
 
 export function ProfileForm() {
   const { data: user, isLoading } = useUserProfile();
@@ -42,6 +58,7 @@ export function ProfileForm() {
     defaultValues: {
       name: "",
       avatarUrl: "",
+      baseCurrency: "",
     },
   });
 
@@ -50,6 +67,7 @@ export function ProfileForm() {
       form.reset({
         name: user.user.name,
         avatarUrl: user.user.avatar || "",
+        baseCurrency: user.user.baseCurrency || "USD",
       });
     }
   }, [user, form]);
@@ -59,6 +77,7 @@ export function ProfileForm() {
       {
         name: data.name,
         avatar: data.avatarUrl || undefined,
+        baseCurrency: data.baseCurrency,
       },
       {
         onError: (error: any) => {
@@ -139,6 +158,39 @@ export function ProfileForm() {
               </FormControl>
               <FormDescription>
                 This is your public display name.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="baseCurrency"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency</FormLabel>
+              <Select
+                key={user?.user.baseCurrency}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a currency" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {mappedCurrencies.map((currency) => (
+                    <SelectItem key={currency.value} value={currency.value}>
+                      {currency.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>
+                This currency will be used for all your budgets and
+                transactions.
               </FormDescription>
               <FormMessage />
             </FormItem>

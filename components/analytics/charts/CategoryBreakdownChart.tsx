@@ -11,6 +11,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CategoryBreakdown } from "@/lib/api/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface CategoryBreakdownChartProps {
   data?: CategoryBreakdown[];
@@ -30,6 +31,8 @@ export function CategoryBreakdownChart({
   data,
   isLoading,
 }: CategoryBreakdownChartProps) {
+  const { format } = useCurrency();
+
   if (isLoading) {
     return <Skeleton className="h-[350px] w-full rounded-xl" />;
   }
@@ -75,14 +78,7 @@ export function CategoryBreakdownChart({
                       />
                     ))}
                 </Pie>
-                <Tooltip
-                  formatter={(value: number) =>
-                    new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    }).format(value)
-                  }
-                />
+                <Tooltip formatter={(value: number) => format(value)} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>

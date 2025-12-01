@@ -6,7 +6,7 @@ import { Header } from "@/components/dashboard/Header";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { usePathname } from "next/navigation";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
-import { RecurringTransactionForm } from "@/components/transactions/RecurringTransactionForm";
+import { RecurringTransactionForm } from "@/components/recurring/RecurringTransactionForm";
 import { BudgetForm } from "@/components/budgets/BudgetForm";
 import { GoalForm } from "@/components/goals/GoalForm";
 import { CategoryForm } from "@/components/categories/CategoryForm";

@@ -9,6 +9,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowDownIcon, ArrowUpIcon, DollarSign, Wallet } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { TRANSACTION_KEYS } from "@/lib/hooks/useTransactions";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface TransactionSummaryProps {
   startDate?: string;
@@ -19,8 +21,9 @@ export function TransactionSummary({
   startDate,
   endDate,
 }: TransactionSummaryProps) {
-  const { data: summary, isLoading } = useQuery({
-    queryKey: ["transactions", "summary", { startDate, endDate }],
+  const { format, isLoading: isCurrencyLoading } = useCurrency();
+  const { data: summary, isLoading: isSummaryLoading } = useQuery({
+    queryKey: TRANSACTION_KEYS.summary(startDate || "", endDate || ""),
     queryFn: () => {
       // Default to current month if no dates provided
       const start =
@@ -34,6 +37,8 @@ export function TransactionSummary({
       return transactionsApi.getSummary(start, end);
     },
   });
+
+  const isLoading = isSummaryLoading || isCurrencyLoading;
 
   if (isLoading) {
     return (
@@ -85,10 +90,9 @@ export function TransactionSummary({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emerald-500">
-              {new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-              }).format(summary?.totalIncome || 0)}
+              <div className="text-2xl font-bold text-emerald-500">
+                {format(summary?.totalIncome || 0)}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -104,10 +108,9 @@ export function TransactionSummary({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-rose-500">
-              {new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-              }).format(summary?.totalExpense || 0)}
+              <div className="text-2xl font-bold text-rose-500">
+                {format(summary?.totalExpense || 0)}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -121,10 +124,9 @@ export function TransactionSummary({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">
-              {new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-              }).format(summary?.totalSaving || 0)}
+              <div className="text-2xl font-bold text-blue-500">
+                {format(summary?.totalSaving || 0)}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -144,10 +146,7 @@ export function TransactionSummary({
                   : "text-rose-500"
               }`}
             >
-              {new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-              }).format(summary?.netBalance || 0)}
+              {format(summary?.netBalance || 0)}
             </div>
           </CardContent>
         </Card>

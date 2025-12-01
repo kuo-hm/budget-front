@@ -126,6 +126,7 @@ interface CategoryFormProps {
   onSubmit: (data: CategoryFormValues) => void;
   initialData?: Category | null;
   isLoading?: boolean;
+  defaultType?: "INCOME" | "EXPENSE" | "SAVING";
 }
 
 export function CategoryForm({
@@ -134,12 +135,13 @@ export function CategoryForm({
   onSubmit,
   initialData,
   isLoading,
+  defaultType = "EXPENSE",
 }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
       name: "",
-      type: "EXPENSE",
+      type: defaultType,
       icon: "other",
     },
   });
@@ -155,12 +157,12 @@ export function CategoryForm({
       } else {
         form.reset({
           name: "",
-          type: "EXPENSE",
+          type: defaultType,
           icon: "other",
         });
       }
     }
-  }, [initialData, form, open]);
+  }, [initialData, form, open, defaultType]);
 
   const renderIcon = (iconName?: string, className?: string) => {
     const IconComponent = iconMap[iconName || "other"] || MoreHorizontal;

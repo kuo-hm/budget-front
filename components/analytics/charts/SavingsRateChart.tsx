@@ -10,11 +10,11 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SavingsRateTrend } from "@/lib/api/analytics";
+import { SavingsRateResponse } from "@/lib/api/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface SavingsRateChartProps {
-  data?: SavingsRateTrend[];
+  data?: SavingsRateResponse;
   isLoading: boolean;
 }
 
@@ -23,6 +23,8 @@ export function SavingsRateChart({ data, isLoading }: SavingsRateChartProps) {
     return <Skeleton className="h-[350px] w-full rounded-xl" />;
   }
 
+  const chartData = data?.monthlyBreakdown || [];
+
   return (
     <Card>
       <CardHeader>
@@ -30,14 +32,14 @@ export function SavingsRateChart({ data, isLoading }: SavingsRateChartProps) {
       </CardHeader>
       <CardContent className="pl-2">
         <div className="h-[300px] w-full">
-          {!data || data.length === 0 ? (
+          {!chartData || chartData.length === 0 ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               No data available
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={Array.isArray(data) ? data : []}
+                data={chartData}
                 margin={{
                   top: 10,
                   right: 30,
@@ -52,7 +54,7 @@ export function SavingsRateChart({ data, isLoading }: SavingsRateChartProps) {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} />
+                <XAxis dataKey="month" tickLine={false} axisLine={false} />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
@@ -63,7 +65,7 @@ export function SavingsRateChart({ data, isLoading }: SavingsRateChartProps) {
                 />
                 <Area
                   type="monotone"
-                  dataKey="rate"
+                  dataKey="savingsRate"
                   stroke="#10b981"
                   fillOpacity={1}
                   fill="url(#colorRate)"

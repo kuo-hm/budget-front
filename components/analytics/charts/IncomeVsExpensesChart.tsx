@@ -14,8 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IncomeVsExpenses } from "@/lib/api/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { format } from "date-fns";
+import { useCurrency } from "@/lib/hooks/useCurrency";
+
 interface IncomeVsExpensesChartProps {
-  data?: IncomeVsExpenses[];
+  data?: IncomeVsExpenses;
   isLoading: boolean;
 }
 
@@ -23,9 +26,25 @@ export function IncomeVsExpensesChart({
   data,
   isLoading,
 }: IncomeVsExpensesChartProps) {
+  const { format: formatCurrency } = useCurrency();
+
   if (isLoading) {
     return <Skeleton className="h-[350px] w-full rounded-xl" />;
   }
+
+  // Transform single object data into array for Recharts
+  const chartData = data
+    ? [
+        {
+          period: `${format(
+            new Date(data.period.startDate),
+            "MMM d"
+          )} - ${format(new Date(data.period.endDate), "MMM d")}`,
+          income: data.income,
+          expenses: data.expenses,
+        },
+      ]
+    : [];
 
   return (
     <Card>
@@ -34,14 +53,14 @@ export function IncomeVsExpensesChart({
       </CardHeader>
       <CardContent className="pl-2">
         <div className="h-[300px] w-full">
-          {!data || data.length === 0 ? (
+          {!data ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               No data available
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
-                data={Array.isArray(data) ? data : []}
+                data={chartData}
                 margin={{
                   top: 5,
                   right: 30,
@@ -54,15 +73,10 @@ export function IncomeVsExpensesChart({
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => formatCurrency(value)}
                 />
                 <Tooltip
-                  formatter={(value: number) =>
-                    new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    }).format(value)
-                  }
+                  formatter={(value: number) => formatCurrency(value)}
                   cursor={{ fill: "transparent" }}
                 />
                 <Legend />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { RecurringTransactionsList } from "@/components/recurring/RecurringTransactionsList";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { RecurringTransactionForm } from "@/components/transactions/RecurringTransactionForm";
+import { RecurringTransactionForm } from "@/components/recurring/RecurringTransactionForm";
 import { useCreateRecurringTransaction } from "@/lib/hooks/useRecurringTransactions";
 import { CreateRecurringTransactionData } from "@/lib/api/recurring-transactions";
 import { toast } from "sonner";

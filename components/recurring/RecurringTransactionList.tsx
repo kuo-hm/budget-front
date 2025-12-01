@@ -21,6 +21,7 @@ import { RecurringTransaction } from "@/lib/api/recurring-transactions";
 import { format } from "date-fns";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface RecurringTransactionListProps {
   transactions: RecurringTransaction[];
@@ -36,6 +37,7 @@ export function RecurringTransactionList({
   onDelete,
 }: RecurringTransactionListProps) {
   const { data: categories } = useCategories();
+  const { format: formatCurrency } = useCurrency();
 
   const getCategoryName = (categoryId: string) => {
     return (
@@ -89,12 +91,7 @@ export function RecurringTransactionList({
               <TableCell className="capitalize">
                 {transaction.frequency.toLowerCase()}
               </TableCell>
-              <TableCell>
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(transaction.amount)}
-              </TableCell>
+              <TableCell>{formatCurrency(transaction.amount)}</TableCell>
               <TableCell>
                 {format(new Date(transaction.nextRunDate), "MMM d, yyyy")}
               </TableCell>

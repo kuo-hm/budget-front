@@ -9,6 +9,7 @@ import {
   DollarSign,
   PiggyBank,
 } from "lucide-react";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface MonthlySummaryGridProps {
   data?: MonthlySummary;
@@ -19,6 +20,8 @@ export function MonthlySummaryGrid({
   data,
   isLoading,
 }: MonthlySummaryGridProps) {
+  const { format } = useCurrency();
+
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -39,12 +42,7 @@ export function MonthlySummaryGrid({
           <ArrowUpIcon className="h-4 w-4 text-emerald-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(data.income)}
-          </div>
+          <div className="text-2xl font-bold">{format(data.income)}</div>
         </CardContent>
       </Card>
 
@@ -54,12 +52,7 @@ export function MonthlySummaryGrid({
           <ArrowDownIcon className="h-4 w-4 text-rose-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(data.expenses)}
-          </div>
+          <div className="text-2xl font-bold">{format(data.expenses)}</div>
         </CardContent>
       </Card>
 
@@ -70,10 +63,7 @@ export function MonthlySummaryGrid({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(isNaN(data.savings) ? 0 : data.savings)}
+            {format(isNaN(data.savings) ? 0 : data.savings)}
           </div>
         </CardContent>
       </Card>

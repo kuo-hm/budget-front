@@ -32,11 +32,11 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateTransactionData, Transaction } from "@/lib/api/transactions";
 import { useEffect } from "react";
-import { useCategories } from "@/lib/hooks/useCategories";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 
 const transactionSchema = z.object({
   amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
-  type: z.enum(["INCOME", "EXPENSE"]),
+  type: z.enum(["INCOME", "EXPENSE", "SAVING"]),
   categoryId: z.string().min(1, "Category is required"),
   date: z.date(),
   description: z.string().optional(),
@@ -60,8 +60,6 @@ export function TransactionForm({
   initialData,
   isLoading,
 }: TransactionFormProps) {
-  const { data: categories } = useCategories();
-
   const form = useForm<TransactionFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(transactionSchema) as any,
@@ -78,13 +76,13 @@ export function TransactionForm({
   // eslint-disable-next-line react-hooks/incompatible-library
   const selectedType = form.watch("type");
 
-  const filteredCategories = categories?.filter((c) => c.type === selectedType);
-
   useEffect(() => {
     if (initialData) {
       form.reset({
         amount: initialData.amount,
-        type: (initialData.category?.type as "INCOME" | "EXPENSE") || "EXPENSE",
+        type:
+          (initialData.category?.type as "INCOME" | "EXPENSE" | "SAVING") ||
+          "EXPENSE",
         categoryId: initialData.categoryId,
         date: new Date(initialData.date),
         description: initialData.description || "",
@@ -147,6 +145,7 @@ export function TransactionForm({
                   <SelectContent>
                     <SelectItem value="INCOME">Income</SelectItem>
                     <SelectItem value="EXPENSE">Expense</SelectItem>
+                    <SelectItem value="SAVING">Saving</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -179,29 +178,12 @@ export function TransactionForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
+                <CategorySelect
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  type={selectedType}
                   disabled={!selectedType}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {filteredCategories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                    {filteredCategories?.length === 0 && (
-                      <div className="p-2 text-sm text-muted-foreground text-center">
-                        No categories found for {selectedType.toLowerCase()}
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
+                />
                 <FormMessage />
               </FormItem>
             )}
