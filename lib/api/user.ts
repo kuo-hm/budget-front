@@ -26,8 +26,8 @@ export interface UserProfile {
 export interface UpdateProfileData {
   name?: string;
   avatar?: string;
+  baseCurrency?: string;
   preferences?: {
-    currency?: string;
     theme?: "light" | "dark" | "system";
   };
 }

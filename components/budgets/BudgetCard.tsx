@@ -14,6 +14,7 @@ import { MoreHorizontal, Edit, Trash, AlertCircle } from "lucide-react";
 import { Budget } from "@/lib/api/budgets";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface BudgetCardProps {
   budget: Budget;
@@ -22,6 +23,7 @@ interface BudgetCardProps {
 }
 
 export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
+  const { format: formatCurrency } = useCurrency();
   const percentage = Math.min(budget.percentageUsed, 100);
 
   // Determine color based on percentage
@@ -72,25 +74,22 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "USD",
-            }).format(budget.limitAmount)}
+            {formatCurrency(budget.limitAmount)}
           </div>
           <p className="text-xs text-muted-foreground mb-4">
-            {format(new Date(budget.startDate), "MMM d")} -{" "}
-            {format(new Date(budget.endDate), "MMM d, yyyy")}
+            {format(new Date(budget.startDate), "MMM d")}
+            {budget.endDate
+              ? ` - ${format(new Date(budget.endDate), "MMM d, yyyy")}`
+              : ""}
+            {budget.frequency && ` • ${budget.frequency}`}
           </p>
 
           <div className="space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Spent</span>
               <span className={`font-medium ${textColor}`}>
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(budget.spentAmount)}{" "}
-                ({Math.round(budget.percentageUsed)}%)
+                {formatCurrency(budget.spentAmount)} (
+                {Math.round(budget.percentageUsed)}%)
               </span>
             </div>
             <Progress

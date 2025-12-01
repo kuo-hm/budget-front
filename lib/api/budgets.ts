@@ -1,13 +1,24 @@
 import apiClient from "./client";
 import { Category } from "./categories";
 
+export enum Frequency {
+  DAILY = "DAILY",
+  WEEKLY = "WEEKLY",
+  MONTHLY = "MONTHLY",
+  YEARLY = "YEARLY",
+}
+
 export interface Budget {
   id: string;
   limitAmount: number;
   startDate: string;
-  endDate: string;
+  endDate: string | null;
+  frequency: Frequency | null;
   categoryId: string;
-  category: Category;
+  category: {
+    id: string;
+    name: string;
+  };
   spentAmount: number;
   percentageUsed: number;
 }
@@ -15,8 +26,9 @@ export interface Budget {
 export interface CreateBudgetData {
   limitAmount: number;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   categoryId: string;
+  frequency?: Frequency;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

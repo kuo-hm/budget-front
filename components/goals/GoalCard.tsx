@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import { useEffect } from "react";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface GoalCardProps {
   goal: Goal;
@@ -29,6 +30,7 @@ export function GoalCard({
   onDelete,
   onUpdateProgress,
 }: GoalCardProps) {
+  const { format: formatCurrency } = useCurrency();
   const percentage = Math.min(goal.percentageCompleted, 100);
   const isCompleted = percentage >= 100;
 
@@ -111,17 +113,10 @@ export function GoalCard({
           <div className="flex items-center justify-between mt-2">
             <div>
               <div className="text-2xl font-bold">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(goal.currentSaved)}
+                {formatCurrency(goal.currentSaved)}
               </div>
               <p className="text-xs text-muted-foreground">
-                of{" "}
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                }).format(goal.targetAmount)}
+                of {formatCurrency(goal.targetAmount)}
               </p>
               {goal.targetDate && (
                 <p className="text-xs text-muted-foreground mt-1">

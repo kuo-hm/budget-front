@@ -11,11 +11,12 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { YearComparison } from "@/lib/api/analytics";
+import { YearComparisonResponse } from "@/lib/api/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface YearComparisonChartProps {
-  data?: YearComparison[];
+  data?: YearComparisonResponse;
   isLoading: boolean;
 }
 
@@ -23,25 +24,35 @@ export function YearComparisonChart({
   data,
   isLoading,
 }: YearComparisonChartProps) {
+  const { format } = useCurrency();
+
   if (isLoading) {
     return <Skeleton className="h-[350px] w-full rounded-xl" />;
   }
 
+  // Transform nested data for Recharts
+  const chartData =
+    data?.monthlyComparison.map((item) => ({
+      month: item.month,
+      currentYear: item.currentYear.income, // Using Income for comparison
+      previousYear: item.previousYear.income,
+    })) || [];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Year over Year Comparison</CardTitle>
+        <CardTitle>Year over Year Comparison (Income)</CardTitle>
       </CardHeader>
       <CardContent className="pl-2">
         <div className="h-[300px] w-full">
-          {!data || data.length === 0 ? (
+          {!chartData || chartData.length === 0 ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">
               No data available
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={Array.isArray(data) ? data : []}
+                data={chartData}
                 margin={{
                   top: 5,
                   right: 30,
@@ -54,21 +65,14 @@ export function YearComparisonChart({
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => format(value)}
                 />
-                <Tooltip
-                  formatter={(value: number) =>
-                    new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    }).format(value)
-                  }
-                />
+                <Tooltip formatter={(value: number) => format(value)} />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="currentYear"
-                  name="Current Year"
+                  name={`Current Year (${data?.currentYear})`}
                   stroke="#8884d8"
                   strokeWidth={2}
                   dot={{ r: 4 }}
@@ -76,7 +80,7 @@ export function YearComparisonChart({
                 <Line
                   type="monotone"
                   dataKey="previousYear"
-                  name="Previous Year"
+                  name={`Previous Year (${data?.previousYear})`}
                   stroke="#82ca9d"
                   strokeWidth={2}
                   strokeDasharray="5 5"

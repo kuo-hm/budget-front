@@ -22,15 +22,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Budget, CreateBudgetData } from "@/lib/api/budgets";
-import { useCategories } from "@/lib/hooks/useCategories";
+import { Budget, CreateBudgetData, Frequency } from "@/lib/api/budgets";
+import { CategorySelect } from "@/components/categories/CategorySelect";
 
-const budgetSchema = z.object({
-  limitAmount: z.coerce.number().min(0.01, "Limit must be greater than 0"),
-  categoryId: z.string().min(1, "Category is required"),
-  startDate: z.string().min(1, "Start date is required"),
-  endDate: z.string().min(1, "End date is required"),
-});
+const budgetSchema = z
+  .object({
+    limitAmount: z.coerce.number().min(0.01, "Limit must be greater than 0"),
+    categoryId: z.string().min(1, "Category is required"),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().optional(),
+    frequency: z.nativeEnum(Frequency).optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.frequency) {
+        return !!data.endDate && data.endDate.length > 0;
+      }
+      return true;
+    },
+    {
+      message: "End date is required for one-time budgets",
+      path: ["endDate"],
+    }
+  );
 
 type BudgetFormValues = z.infer<typeof budgetSchema>;
 
@@ -49,8 +63,6 @@ export function BudgetForm({
   initialData,
   isLoading,
 }: BudgetFormProps) {
-  const { data: categories } = useCategories();
-
   const form = useForm<BudgetFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(budgetSchema) as any,
@@ -59,8 +71,11 @@ export function BudgetForm({
       categoryId: "",
       startDate: new Date().toISOString().split("T")[0],
       endDate: "",
+      frequency: undefined,
     },
   });
+
+  const frequency = form.watch("frequency");
 
   useEffect(() => {
     if (open) {
@@ -69,7 +84,8 @@ export function BudgetForm({
           limitAmount: initialData.limitAmount,
           categoryId: initialData.categoryId,
           startDate: initialData.startDate.split("T")[0],
-          endDate: initialData.endDate.split("T")[0],
+          endDate: initialData.endDate ? initialData.endDate.split("T")[0] : "",
+          frequency: initialData.frequency || undefined,
         });
       } else {
         // Set default start date to first day of current month and end date to last day
@@ -82,12 +98,15 @@ export function BudgetForm({
           categoryId: "",
           startDate: firstDay.toISOString().split("T")[0],
           endDate: lastDay.toISOString().split("T")[0],
+          frequency: undefined,
         });
       }
     }
   }, [open, initialData, form]);
 
   const handleSubmit = (values: BudgetFormValues) => {
+    // If frequency is set, endDate is optional, but API might expect it to be undefined or null if not provided
+    // Our DTO says optional string.
     onSubmit(values);
   };
 
@@ -110,24 +129,11 @@ export function BudgetForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
+                <CategorySelect
                   value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={field.onChange}
+                  placeholder="Select category"
+                />
                 <FormMessage />
               </FormItem>
             )}
@@ -147,6 +153,36 @@ export function BudgetForm({
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="frequency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Frequency (Optional)</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value === "NONE" ? undefined : value);
+                  }}
+                  value={field.value || "NONE"}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="NONE">One-time</SelectItem>
+                    <SelectItem value={Frequency.DAILY}>Daily</SelectItem>
+                    <SelectItem value={Frequency.WEEKLY}>Weekly</SelectItem>
+                    <SelectItem value={Frequency.MONTHLY}>Monthly</SelectItem>
+                    <SelectItem value={Frequency.YEARLY}>Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -172,7 +208,9 @@ export function BudgetForm({
               name="endDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Date</FormLabel>
+                  <FormLabel>
+                    End Date {frequency ? "(Optional)" : ""}
+                  </FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>

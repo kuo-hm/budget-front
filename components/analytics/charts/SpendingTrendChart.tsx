@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpendingTrend } from "@/lib/api/analytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface SpendingTrendChartProps {
   data?: SpendingTrend[];
@@ -23,6 +24,8 @@ export function SpendingTrendChart({
   data,
   isLoading,
 }: SpendingTrendChartProps) {
+  const { format: formatCurrency } = useCurrency();
+
   if (isLoading) {
     return <Skeleton className="h-[350px] w-full rounded-xl" />;
   }
@@ -41,7 +44,15 @@ export function SpendingTrendChart({
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={Array.isArray(data) ? data : []}
+                data={
+                  Array.isArray(data)
+                    ? data.map((item) => ({
+                        ...item,
+                        income: item.income,
+                        expenses: Math.abs(item.expenses),
+                      }))
+                    : []
+                }
                 margin={{
                   top: 5,
                   right: 10,
@@ -50,9 +61,19 @@ export function SpendingTrendChart({
                 }}
               >
                 <defs>
-                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient
+                    id="colorExpenses"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -67,14 +88,14 @@ export function SpendingTrendChart({
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => formatCurrency(value)}
                 />
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
                         <div className="rounded-lg border bg-background p-2 shadow-sm">
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 mb-2">
                             <div className="flex flex-col">
                               <span className="text-[0.70rem] uppercase text-muted-foreground">
                                 Date
@@ -85,12 +106,28 @@ export function SpendingTrendChart({
                                   : ""}
                               </span>
                             </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                Amount
+                              <span className="text-[0.70rem] uppercase text-emerald-500">
+                                Income
                               </span>
-                              <span className="font-bold">
-                                ${payload[0].value}
+                              <span className="font-bold text-emerald-500">
+                                {formatCurrency(
+                                  (payload.find((p) => p.dataKey === "income")
+                                    ?.value as number) || 0
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[0.70rem] uppercase text-rose-500">
+                                Expenses
+                              </span>
+                              <span className="font-bold text-rose-500">
+                                {formatCurrency(
+                                  (payload.find((p) => p.dataKey === "expenses")
+                                    ?.value as number) || 0
+                                )}
                               </span>
                             </div>
                           </div>
@@ -102,10 +139,17 @@ export function SpendingTrendChart({
                 />
                 <Area
                   type="monotone"
-                  dataKey="amount"
-                  stroke="#8884d8"
+                  dataKey="income"
+                  stroke="#10b981"
                   fillOpacity={1}
-                  fill="url(#colorAmount)"
+                  fill="url(#colorIncome)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="expenses"
+                  stroke="#ef4444"
+                  fillOpacity={1}
+                  fill="url(#colorExpenses)"
                 />
               </AreaChart>
             </ResponsiveContainer>

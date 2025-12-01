@@ -23,6 +23,7 @@ import { MoreHorizontal, ArrowUpDown, Trash, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -50,6 +51,8 @@ export function TransactionList({
   selectedIds,
   onSelectionChange,
 }: TransactionListProps) {
+  const { currency: userCurrency } = useCurrency();
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       onSelectionChange(transactions.map((t) => t.id));
@@ -190,7 +193,7 @@ export function TransactionList({
                     {transaction.category?.type === "INCOME" ? "+" : "-"}
                     {new Intl.NumberFormat("en-US", {
                       style: "currency",
-                      currency: transaction.currency || "USD",
+                      currency: transaction.currency || userCurrency,
                     }).format(transaction.amount)}
                   </TableCell>
                   <TableCell>

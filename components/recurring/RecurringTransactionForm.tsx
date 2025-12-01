@@ -26,11 +26,13 @@ import {
   RecurringTransaction,
   CreateRecurringTransactionData,
 } from "@/lib/api/recurring-transactions";
-import { useCategories } from "@/lib/hooks/useCategories";
+import { CategorySelect } from "@/components/categories/CategorySelect";
+import { useCategory } from "@/lib/hooks/useCategories";
 
 const recurringTransactionSchema = z.object({
   amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
   description: z.string().min(1, "Description is required"),
+  type: z.enum(["INCOME", "EXPENSE", "SAVING"]),
   categoryId: z.string().min(1, "Category is required"),
   frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
   startDate: z.string().min(1, "Start date is required"),
@@ -56,7 +58,7 @@ export function RecurringTransactionForm({
   initialData,
   isLoading,
 }: RecurringTransactionFormProps) {
-  const { data: categories } = useCategories();
+  const { data: initialCategory } = useCategory(initialData?.categoryId || "");
 
   const form = useForm<RecurringTransactionFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,6 +66,7 @@ export function RecurringTransactionForm({
     defaultValues: {
       amount: 0,
       description: "",
+      type: "EXPENSE",
       categoryId: "",
       frequency: "MONTHLY",
       startDate: new Date().toISOString().split("T")[0],
@@ -71,12 +74,15 @@ export function RecurringTransactionForm({
     },
   });
 
+  const selectedType = form.watch("type");
+
   useEffect(() => {
     if (open) {
       if (initialData) {
         form.reset({
           amount: initialData.amount,
           description: initialData.description || "",
+          type: initialCategory?.type || "EXPENSE",
           categoryId: initialData.categoryId,
           frequency: initialData.frequency,
           startDate: initialData.startDate.split("T")[0],
@@ -86,6 +92,7 @@ export function RecurringTransactionForm({
         form.reset({
           amount: 0,
           description: "",
+          type: "EXPENSE",
           categoryId: "",
           frequency: "MONTHLY",
           startDate: new Date().toISOString().split("T")[0],
@@ -93,12 +100,14 @@ export function RecurringTransactionForm({
         });
       }
     }
-  }, [open, initialData, form]);
+  }, [open, initialData, form, initialCategory]);
 
   const handleSubmit = (values: RecurringTransactionFormValues) => {
+    // We don't send 'type' to the API
+    const { type, ...data } = values;
     onSubmit({
-      ...values,
-      endDate: values.endDate || undefined,
+      ...data,
+      endDate: data.endDate || undefined,
     });
   };
 
@@ -153,26 +162,26 @@ export function RecurringTransactionForm({
 
             <FormField
               control={form.control}
-              name="categoryId"
+              name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>Type</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      form.setValue("categoryId", "");
+                    }}
                     value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories?.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="INCOME">Income</SelectItem>
+                      <SelectItem value="EXPENSE">Expense</SelectItem>
+                      <SelectItem value="SAVING">Saving</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -180,6 +189,24 @@ export function RecurringTransactionForm({
               )}
             />
           </div>
+
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <CategorySelect
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  type={selectedType}
+                  placeholder="Select category"
+                  disabled={!selectedType}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}

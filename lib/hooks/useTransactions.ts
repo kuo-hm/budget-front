@@ -13,6 +13,9 @@ export const TRANSACTION_KEYS = {
     [...TRANSACTION_KEYS.lists(), filters] as const,
   details: () => [...TRANSACTION_KEYS.all, "detail"] as const,
   detail: (id: string) => [...TRANSACTION_KEYS.details(), id] as const,
+  summaries: () => [...TRANSACTION_KEYS.all, "summary"] as const,
+  summary: (startDate: string, endDate: string) =>
+    [...TRANSACTION_KEYS.summaries(), { startDate, endDate }] as const,
 };
 
 export function useTransactions(filters: TransactionFilters = {}) {
@@ -38,6 +41,7 @@ export function useCreateTransaction() {
     mutationFn: (data: CreateTransactionData) => transactionsApi.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
     },
   });
 }
@@ -50,6 +54,7 @@ export function useUpdateTransaction() {
       transactionsApi.update(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
       queryClient.invalidateQueries({
         queryKey: TRANSACTION_KEYS.detail(data.id),
       });
@@ -64,6 +69,7 @@ export function useDeleteTransaction() {
     mutationFn: (id: string) => transactionsApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
     },
   });
 }
@@ -82,6 +88,7 @@ export function useImportTransactions() {
     mutationFn: (file: File) => transactionsApi.import(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
     },
   });
 }
