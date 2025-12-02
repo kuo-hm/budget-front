@@ -50,7 +50,6 @@ export function useAuth() {
       try {
         const response = await authApi.register(data);
         setAuth(response.user, response.accessToken);
-        router.push("/dashboard");
         return response;
       } catch (err: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
