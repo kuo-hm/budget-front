@@ -43,6 +43,9 @@ export default function BudgetsPage() {
       toast.success("Budget created successfully");
       setIsFormOpen(false);
     } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
       toast.error("Failed to create budget");
     }
   };
