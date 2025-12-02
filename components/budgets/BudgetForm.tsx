@@ -133,6 +133,7 @@ export function BudgetForm({
                   value={field.value || ""}
                   onChange={field.onChange}
                   placeholder="Select category"
+                  type="EXPENSE"
                 />
                 <FormMessage />
               </FormItem>
