@@ -116,6 +116,7 @@ const iconMap: Record<string, LucideIcon> = {
   pen: Pen,
   smile: Smile,
   other: MoreHorizontal,
+
 };
 
 const iconOptions = Object.keys(iconMap);
@@ -181,7 +182,13 @@ export function CategoryForm({
       }
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.stopPropagation();
+            form.handleSubmit(onSubmit)(e);
+          }}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="name"

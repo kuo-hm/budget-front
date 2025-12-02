@@ -3,13 +3,13 @@ import { useUserProfile } from "@/lib/hooks/useUser";
 import { Button } from "@/components/ui/button";
 import {
   Menu,
-  Bell,
   User,
   Plus,
   PiggyBank,
   Target,
   Tag,
   Repeat,
+  Blocks,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CurrencySelector } from "./CurrencySelector";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -65,8 +66,7 @@ export function Header({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="default" size="sm" className="gap-2">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Create</span>
+                <Blocks className="" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -94,10 +94,7 @@ export function Header({
           </DropdownMenu>
         </div>
 
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        {/* <CurrencySelector /> */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

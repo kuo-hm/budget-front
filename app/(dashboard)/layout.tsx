@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { isAxiosError } from "axios";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -109,7 +110,11 @@ export default function DashboardLayout({
       toast.success("Category created successfully");
       setIsCategoryOpen(false);
     } catch (error) {
-      toast.error("Failed to create category");
+      if (isAxiosError(error) && error.response?.status === 409) {
+        toast.error("Category already exists");
+      } else {
+        toast.error("Failed to create category");
+      }
     }
   };
 

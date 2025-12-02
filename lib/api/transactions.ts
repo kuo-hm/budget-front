@@ -10,16 +10,17 @@ export interface Transaction {
   category: Category;
   userId: string;
   currency: string;
+  goalId?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateTransactionData {
   amount: number;
-  currency: string;
   description?: string;
   date: string;
   categoryId: string;
+  goalId?: string;
 }
 
 export interface UpdateTransactionData extends Partial<CreateTransactionData> {

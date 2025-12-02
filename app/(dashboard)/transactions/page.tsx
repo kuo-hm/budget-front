@@ -190,12 +190,12 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      <TransactionFilters filters={filters} onFilterChange={setFilters} />
 
       <TransactionSummary
-        startDate={filters.startDate}
-        endDate={filters.endDate}
+      // startDate={filters.startDate}
+      // endDate={filters.endDate}
       />
+      <TransactionFilters filters={filters} onFilterChange={setFilters} />
 
       <TransactionList
         transactions={data?.data || []}

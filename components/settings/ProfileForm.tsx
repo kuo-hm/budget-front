@@ -17,15 +17,22 @@ import { Input } from "@/components/ui/input";
 import { useUpdateProfile, useUserProfile } from "@/lib/hooks/useUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { currencies } from "@/lib/constants/currencies";
 
 const profileFormSchema = z.object({
@@ -44,14 +51,12 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const mappedCurrencies = currencies.map((currency) => ({
-  value: currency.code,
-  label: `${currency.name} (${currency.symbol})`,
-}));
+
 
 export function ProfileForm() {
   const { data: user, isLoading } = useUserProfile();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
+  const [open, setOpen] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -64,6 +69,7 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (user) {
+      console.log(user.user);
       form.reset({
         name: user.user.name,
         avatarUrl: user.user.avatar || "",
@@ -168,29 +174,61 @@ export function ProfileForm() {
           control={form.control}
           name="baseCurrency"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Currency</FormLabel>
-              <Select
-                key={user?.user.baseCurrency}
-                onValueChange={field.onChange}
-                value={field.value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a currency" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {mappedCurrencies.map((currency) => (
-                    <SelectItem key={currency.value} value={currency.value}>
-                      {currency.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-[240px] justify-between",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value
+                        ? currencies.find(
+                          (currency) => currency.code === field.value
+                        )?.code
+                        : "Select currency"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[240px] p-0" >
+                  <Command>
+                    <CommandInput placeholder="Search currency..." />
+                    <CommandList>
+                      <CommandEmpty>No currency found.</CommandEmpty>
+                      <CommandGroup>
+                        {currencies.map((currency) => (
+                          <CommandItem
+                            value={currency.name}
+                            key={currency.code}
+                            onSelect={() => {
+                              form.setValue("baseCurrency", currency.code);
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                currency.code === field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {currency.code} - {currency.name} ({currency.symbol})
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <FormDescription>
-                This currency will be used for all your budgets and
-                transactions.
+                This currency will be used for all your budgets and transactions.
               </FormDescription>
               <FormMessage />
             </FormItem>

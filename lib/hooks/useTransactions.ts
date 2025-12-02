@@ -5,6 +5,7 @@ import {
   CreateTransactionData,
   UpdateTransactionData,
 } from "@/lib/api/transactions";
+import { GOAL_KEYS } from "./useGoals";
 
 export const TRANSACTION_KEYS = {
   all: ["transactions"] as const,
@@ -42,6 +43,7 @@ export function useCreateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
     },
   });
 }
@@ -55,6 +57,7 @@ export function useUpdateTransaction() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
       queryClient.invalidateQueries({
         queryKey: TRANSACTION_KEYS.detail(data.id),
       });
@@ -70,6 +73,7 @@ export function useDeleteTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
     },
   });
 }
@@ -89,6 +93,7 @@ export function useImportTransactions() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
     },
   });
 }
