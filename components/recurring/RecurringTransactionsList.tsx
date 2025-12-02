@@ -102,6 +102,8 @@ export function RecurringTransactionsList() {
               <TableHead>Next Run</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
+          </TableHeader>
+          <TableBody>
             {transactions.map((transaction) => (
               <TableRow key={transaction.id}>
                 <TableCell className="font-medium">
