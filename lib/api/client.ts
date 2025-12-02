@@ -8,6 +8,7 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
+
 // Request interceptor removed as we use cookies
 
 apiClient.interceptors.response.use(
@@ -25,8 +26,7 @@ apiClient.interceptors.response.use(
 
       try {
         await axios.post(
-          `${
-            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
           }/auth/refresh`,
           {},
           { withCredentials: true }
@@ -50,4 +50,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-export default apiClient;
+export default apiClient
