@@ -1,4 +1,5 @@
 import apiClient from "./client";
+import authApiClient from "./auth-client";
 
 export interface RegisterData {
   email: string;
@@ -47,12 +48,12 @@ export interface ResetPasswordData {
 
 export const authApi = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>("/auth/signup", data);
+    const response = await authApiClient.post<AuthResponse>("/auth/signup", data);
     return response.data;
   },
 
   login: async (data: LoginData): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>("/auth/login", data);
+    const response = await authApiClient.post<AuthResponse>("/auth/login", data);
     return response.data;
   },
 
@@ -64,15 +65,15 @@ export const authApi = {
   },
 
   verifyEmail: async (data: VerifyEmailData): Promise<void> => {
-    await apiClient.post("/auth/verify-email", data);
+    await authApiClient.post("/auth/verify-email", data);
   },
 
   resendVerification: async (data: ResendVerificationData): Promise<void> => {
-    await apiClient.post("/auth/resend-verification", data);
+    await authApiClient.post("/auth/resend-verification", data);
   },
 
   forgotPassword: async (data: ForgotPasswordData): Promise<void> => {
-    await apiClient.post("/auth/forgot-password", data);
+    await authApiClient.post("/auth/forgot-password", data);
   },
 
   resetPassword: async (data: ResetPasswordData): Promise<void> => {
