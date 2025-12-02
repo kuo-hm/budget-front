@@ -130,7 +130,7 @@ export function BudgetForm({
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <CategorySelect
-                  value={field.value}
+                  value={field.value || ""}
                   onChange={field.onChange}
                   placeholder="Select category"
                 />
