@@ -31,8 +31,11 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CreateTransactionData, Transaction } from "@/lib/api/transactions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CategorySelect } from "@/components/categories/CategorySelect";
+import { SUPPORTED_CURRENCIES } from "@/lib/utils/currency";
+import { useQuery } from "@tanstack/react-query";
+import { goalsApi } from "@/lib/api/goals";
 
 const transactionSchema = z.object({
   amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
@@ -40,7 +43,7 @@ const transactionSchema = z.object({
   categoryId: z.string().min(1, "Category is required"),
   date: z.date(),
   description: z.string().optional(),
-  currency: z.string().default("USD"),
+  goalId: z.string().optional(),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -68,13 +71,14 @@ export function TransactionForm({
       categoryId: "",
       date: new Date(),
       description: "",
-      currency: "USD",
+      goalId: "",
     },
   });
 
   // Watch type to filter categories
   // eslint-disable-next-line react-hooks/incompatible-library
   const selectedType = form.watch("type");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -86,7 +90,7 @@ export function TransactionForm({
         categoryId: initialData.categoryId,
         date: new Date(initialData.date),
         description: initialData.description || "",
-        currency: initialData.currency || "USD",
+        goalId: initialData.goalId || "",
       });
     } else {
       form.reset({
@@ -94,19 +98,25 @@ export function TransactionForm({
         categoryId: "",
         date: new Date(),
         description: "",
-        currency: "USD",
+        goalId: "",
       });
     }
   }, [initialData, form, open]);
+
+  const { data: goals } = useQuery({
+    queryKey: ["goals"],
+    queryFn: goalsApi.getAll,
+    enabled: selectedType === "SAVING",
+  });
 
   const handleSubmit = async (data: TransactionFormValues) => {
     // We don't send 'type' to the API as it's part of the category
     await onSubmit({
       amount: data.amount,
-      currency: data.currency,
       description: data.description,
       date: data.date.toISOString(),
       categoryId: data.categoryId,
+      goalId: data.type === "SAVING" ? data.goalId : undefined,
     });
     onOpenChange(false);
   };
@@ -189,13 +199,45 @@ export function TransactionForm({
             )}
           />
 
+
+          {selectedType === "SAVING" && (
+            <FormField
+              control={form.control}
+              name="goalId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Goal (Optional)</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    disabled={!goals?.length}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a goal" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {goals?.map((goal) => (
+                        <SelectItem key={goal.id} value={goal.id}>
+                          {goal.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           <FormField
             control={form.control}
             name="date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Date</FormLabel>
-                <Popover>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
@@ -218,7 +260,10 @@ export function TransactionForm({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(e) => {
+                        field.onChange(e);
+                        setIsCalendarOpen(false);
+                      }}
                       disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
                       }
