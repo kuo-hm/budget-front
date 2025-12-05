@@ -41,9 +41,8 @@ export function LoginForm() {
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const url = `${
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
-    }/auth/${provider}`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
+      }/auth/${provider}`;
 
     const popup = window.open(
       url,

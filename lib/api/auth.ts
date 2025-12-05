@@ -46,6 +46,11 @@ export interface ResetPasswordData {
   newPassword: string;
 }
 
+export interface VerifyEmailChangeData {
+  token: string;
+  code: string;
+}
+
 export const authApi = {
   register: async (data: RegisterData): Promise<AuthResponse> => {
     const response = await authApiClient.post<AuthResponse>("/auth/signup", data);
@@ -66,6 +71,10 @@ export const authApi = {
 
   verifyEmail: async (data: VerifyEmailData): Promise<void> => {
     await authApiClient.post("/auth/verify-email", data);
+  },
+
+  verifyEmailChange: async (data: VerifyEmailChangeData): Promise<void> => {
+    await authApiClient.post("/auth/verify-email-change", data);
   },
 
   resendVerification: async (data: ResendVerificationData): Promise<void> => {

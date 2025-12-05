@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BudgetList } from "@/components/budgets/BudgetList";
 import { BudgetForm } from "@/components/budgets/BudgetForm";
@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { motion } from "framer-motion";
+import { exportToCSV } from "@/lib/utils/export";
 
 export default function BudgetsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -86,6 +87,19 @@ export default function BudgetsPage() {
     setIsFormOpen(true);
   };
 
+  const handleExport = () => {
+    if (!budgets) return;
+    const data = budgets.map(b => ({
+      Category: b.category?.name || 'N/A',
+      Limit: b.limitAmount,
+      Spent: b.spentAmount,
+      Remaining: b.limitAmount - b.spentAmount,
+      Frequency: b.frequency || 'N/A'
+    }));
+    exportToCSV(data, 'budgets-export');
+    toast.success("Budgets exported successfully");
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -100,10 +114,16 @@ export default function BudgetsPage() {
             Set spending limits and track your progress
           </p>
         </div>
-        <Button onClick={openCreateModal}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Budget
-        </Button>
+        <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport} disabled={!budgets || budgets.length === 0}>
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+            </Button>
+            <Button onClick={openCreateModal}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Budget
+            </Button>
+        </div>
       </div>
 
       <BudgetList
