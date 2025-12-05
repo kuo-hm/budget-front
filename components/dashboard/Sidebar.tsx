@@ -17,6 +17,8 @@ const navigation = [
   { name: "Transactions", href: "/transactions", icon: Receipt },
   { name: "Recurring", href: "/recurring-transactions", icon: Repeat },
   { name: "Budgets", href: "/budgets", icon: PiggyBank },
+  { name: "Debts", href: "/debts", icon: CreditCard },
+  { name: "Investments", href: "/investments", icon: TrendingUp },
   { name: "Goals", href: "/goals", icon: Target },
 ];
 

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
 import { useAuth } from "@/lib/hooks/useAuth";
 
-const PUBLIC_ROUTES = ["/", "/login", "/register", "/auth/verify-email"];
+const PUBLIC_ROUTES = ["/", "/login", "/register", "/auth/verify-email", "/forgot-password"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -31,9 +31,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isChecking) return;
-
+    
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-
+    console.log(pathname)
     if (isAuthenticated) {
       if (isPublicRoute) {
         router.push("/dashboard");

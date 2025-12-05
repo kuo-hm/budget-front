@@ -14,7 +14,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useChangePassword, useChangeEmail } from "@/lib/hooks/useUser";
+import {
+  useChangePassword,
+  useChangeEmail,
+  useActiveSessions,
+  useRevokeSession,
+  useRevokeAllSessions,
+} from "@/lib/hooks/useUser";
 import {
   Card,
   CardContent,
@@ -22,7 +28,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Laptop, Smartphone, Globe } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 const passwordFormSchema = z
   .object({
@@ -78,8 +85,94 @@ export function SecuritySettings() {
     });
   }
 
+  const { data: sessions, isLoading: isLoadingSessions } = useActiveSessions();
+  const { mutate: revokeSession, isPending: isRevoking } = useRevokeSession();
+  const { mutate: revokeAll, isPending: isRevokingAll } =
+    useRevokeAllSessions();
+
   return (
     <div className="space-y-8">
+      {/* Active Sessions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Sessions</CardTitle>
+          <CardDescription>
+            Manage your active sessions on other devices.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoadingSessions ? (
+            <div className="flex justify-center p-4">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sessions?.map((session) => (
+                <div
+                  key={session.id}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                      {/* Placeholder logic for icon based on UA if available, else Laptop */}
+                      <Laptop className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        {session.userAgent || "Unknown Device"}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Last active:{" "}
+                        {session.updatedAt
+                          ? formatDistanceToNow(new Date(session.updatedAt), {
+                              addSuffix: true,
+                            })
+                          : "Unknown"}
+                      </p>
+                    </div>
+                  </div>
+                  {!session.isCurrent && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => revokeSession(session.refreshToken)}
+                      disabled={isRevoking}
+                    >
+                      Revoke
+                    </Button>
+                  )}
+                  {session.isCurrent && (
+                    <span className="text-sm font-medium text-green-500">
+                      Current Session
+                    </span>
+                  )}
+                </div>
+              ))}
+              {sessions && sessions.length > 1 && (
+                <div className="flex justify-end pt-4">
+                  <Button
+                    variant="destructive"
+                    onClick={() => revokeAll()}
+                    disabled={isRevokingAll}
+                  >
+                    {isRevokingAll && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Revoke All Other Sessions
+                  </Button>
+                </div>
+              )}
+               {(!sessions || sessions.length === 0) && (
+                <p className="text-sm text-muted-foreground">
+                  No active sessions found.
+                </p>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Change Email */}
       <Card>
         <CardHeader>
           <CardTitle>Change Email</CardTitle>
@@ -122,6 +215,7 @@ export function SecuritySettings() {
         </CardContent>
       </Card>
 
+      {/* Change Password */}
       <Card>
         <CardHeader>
           <CardTitle>Change Password</CardTitle>
