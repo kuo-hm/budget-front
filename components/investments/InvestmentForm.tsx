@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon, Loader2 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { Button } from '@/components/ui/button'
@@ -42,10 +42,11 @@ const investmentFormSchema = z.object({
   type: z.nativeEnum(InvestmentType),
   quantity: z.coerce.number().min(0.000001, 'Quantity must be positive'),
   purchasePrice: z.coerce.number().min(0, 'Price must be positive'),
-  purchaseDate: z.date({ required_error: 'Purchase date is required' }),
+  purchaseDate: z.date({ message: 'Purchase date is required' }),
 })
 
 type InvestmentFormValues = z.infer<typeof investmentFormSchema>
+type InvestmentFormInput = z.input<typeof investmentFormSchema>
 
 interface InvestmentFormProps {
   investment?: Investment
@@ -61,7 +62,7 @@ export function InvestmentForm({ investment, onSuccess }: InvestmentFormProps) {
   const isEditing = !!investment
   const isPending = isCreating || isUpdating
 
-  const form = useForm<InvestmentFormValues>({
+  const form = useForm<InvestmentFormInput, unknown, InvestmentFormValues>({
     resolver: zodResolver(investmentFormSchema),
     defaultValues: {
       name: investment?.name || '',
@@ -75,7 +76,7 @@ export function InvestmentForm({ investment, onSuccess }: InvestmentFormProps) {
     },
   })
 
-  function onSubmit(data: InvestmentFormValues) {
+  const onSubmit: SubmitHandler<InvestmentFormValues> = (data) => {
     const formattedData = {
       ...data,
       purchaseDate: data.purchaseDate.toISOString(),
@@ -163,7 +164,12 @@ export function InvestmentForm({ investment, onSuccess }: InvestmentFormProps) {
               <FormItem>
                 <FormLabel>Quantity</FormLabel>
                 <FormControl>
-                  <Input type="number" step="any" {...field} />
+                  <Input
+                    type="number"
+                    step="any"
+                    {...field}
+                    value={field.value as number}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -177,7 +183,12 @@ export function InvestmentForm({ investment, onSuccess }: InvestmentFormProps) {
               <FormItem>
                 <FormLabel>Purchase Price</FormLabel>
                 <FormControl>
-                  <Input type="number" step="0.01" {...field} />
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...field}
+                    value={field.value as number}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
