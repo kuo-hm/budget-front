@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "release": "release-please github-release",
-    "release:pr": "release-please release-pr",
+    "release": "release-please github-release --repo-url=kuo-hm/budget-front",
+    "release:pr": "release-please release-pr --repo-url=kuo-hm/budget-front",
     "prepare": "husky"
   },
   "dependencies": {
