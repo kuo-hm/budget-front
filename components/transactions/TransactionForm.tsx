@@ -1,9 +1,8 @@
-"use client";
+'use client'
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { CategorySelect } from '@/components/categories/CategorySelect'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Form,
   FormControl,
@@ -11,49 +10,50 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { CreateTransactionData, Transaction } from "@/lib/api/transactions";
-import { useEffect, useState } from "react";
-import { CategorySelect } from "@/components/categories/CategorySelect";
-import { SUPPORTED_CURRENCIES } from "@/lib/utils/currency";
-import { useQuery } from "@tanstack/react-query";
-import { goalsApi } from "@/lib/api/goals";
+} from '@/components/ui/select'
+import { CreateTransactionData, Transaction } from '@/lib/api/transactions'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { CalendarIcon, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+
+import { goalsApi } from '@/lib/api/goals'
+import { useQuery } from '@tanstack/react-query'
 
 const transactionSchema = z.object({
-  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
-  type: z.enum(["INCOME", "EXPENSE", "SAVING"]),
-  categoryId: z.string().min(1, "Category is required"),
+  amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
+  type: z.enum(['INCOME', 'EXPENSE', 'SAVING']),
+  categoryId: z.string().min(1, 'Category is required'),
   date: z.date(),
   description: z.string().optional(),
   goalId: z.string().optional(),
-});
+})
 
-type TransactionFormValues = z.infer<typeof transactionSchema>;
+type TransactionFormValues = z.infer<typeof transactionSchema>
 
 interface TransactionFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateTransactionData) => Promise<void>;
-  initialData?: Transaction | null;
-  isLoading?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CreateTransactionData) => Promise<void>
+  initialData?: Transaction | null
+  isLoading?: boolean
 }
 
 export function TransactionForm({
@@ -67,47 +67,47 @@ export function TransactionForm({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(transactionSchema) as any,
     defaultValues: {
-      type: "EXPENSE",
-      categoryId: "",
+      type: 'EXPENSE',
+      categoryId: '',
       date: new Date(),
-      description: "",
-      goalId: "",
+      description: '',
+      goalId: '',
     },
-  });
+  })
 
   // Watch type to filter categories
   // eslint-disable-next-line react-hooks/incompatible-library
-  const selectedType = form.watch("type");
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const selectedType = form.watch('type')
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false)
 
   useEffect(() => {
     if (initialData) {
       form.reset({
         amount: initialData.amount,
         type:
-          (initialData.category?.type as "INCOME" | "EXPENSE" | "SAVING") ||
-          "EXPENSE",
+          (initialData.category?.type as 'INCOME' | 'EXPENSE' | 'SAVING') ||
+          'EXPENSE',
         categoryId: initialData.categoryId,
         date: new Date(initialData.date),
-        description: initialData.description || "",
-        goalId: initialData.goalId || "",
-      });
+        description: initialData.description || '',
+        goalId: initialData.goalId || '',
+      })
     } else {
       form.reset({
-        type: "EXPENSE",
-        categoryId: "",
+        type: 'EXPENSE',
+        categoryId: '',
         date: new Date(),
-        description: "",
-        goalId: "",
-      });
+        description: '',
+        goalId: '',
+      })
     }
-  }, [initialData, form, open]);
+  }, [initialData, form, open])
 
   const { data: goals } = useQuery({
-    queryKey: ["goals"],
+    queryKey: ['goals'],
     queryFn: goalsApi.getAll,
-    enabled: selectedType === "SAVING",
-  });
+    enabled: selectedType === 'SAVING',
+  })
 
   const handleSubmit = async (data: TransactionFormValues) => {
     // We don't send 'type' to the API as it's part of the category
@@ -116,24 +116,27 @@ export function TransactionForm({
       description: data.description,
       date: data.date.toISOString(),
       categoryId: data.categoryId,
-      goalId: data.type === "SAVING" ? data.goalId : undefined,
-    });
-    onOpenChange(false);
-  };
+      goalId: data.type === 'SAVING' ? data.goalId : undefined,
+    })
+    onOpenChange(false)
+  }
 
   return (
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={initialData ? "Edit Transaction" : "Add Transaction"}
+      title={initialData ? 'Edit Transaction' : 'Add Transaction'}
       description={
         initialData
-          ? "Make changes to your transaction here."
-          : "Add a new transaction to your records."
+          ? 'Make changes to your transaction here.'
+          : 'Add a new transaction to your records.'
       }
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => void form.handleSubmit(handleSubmit)(e)}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="type"
@@ -142,8 +145,8 @@ export function TransactionForm({
                 <FormLabel>Type</FormLabel>
                 <Select
                   onValueChange={(val) => {
-                    field.onChange(val);
-                    form.setValue("categoryId", ""); // Reset category when type changes
+                    field.onChange(val)
+                    form.setValue('categoryId', '') // Reset category when type changes
                   }}
                   defaultValue={field.value}
                 >
@@ -189,7 +192,7 @@ export function TransactionForm({
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <CategorySelect
-                  value={field.value || ""}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   type={selectedType}
                   disabled={!selectedType}
@@ -199,8 +202,7 @@ export function TransactionForm({
             )}
           />
 
-
-          {selectedType === "SAVING" && (
+          {selectedType === 'SAVING' && (
             <FormField
               control={form.control}
               name="goalId"
@@ -241,14 +243,14 @@ export function TransactionForm({
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
-                        variant={"outline"}
+                        variant={'outline'}
                         className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          'w-full pl-3 text-left font-normal',
+                          !field.value && 'text-muted-foreground',
                         )}
                       >
                         {field.value ? (
-                          format(field.value, "PPP")
+                          format(field.value, 'PPP')
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -261,11 +263,11 @@ export function TransactionForm({
                       mode="single"
                       selected={field.value}
                       onSelect={(e) => {
-                        field.onChange(e);
-                        setIsCalendarOpen(false);
+                        field.onChange(e)
+                        setIsCalendarOpen(false)
                       }}
                       disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
+                        date > new Date() || date < new Date('1900-01-01')
                       }
                       initialFocus
                     />
@@ -301,11 +303,11 @@ export function TransactionForm({
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {initialData ? "Update" : "Create"}
+              {initialData ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>
       </Form>
     </ResponsiveDialog>
-  );
+  )
 }

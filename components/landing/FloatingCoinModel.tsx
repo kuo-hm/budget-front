@@ -1,30 +1,29 @@
-"use client";
+'use client'
 
-import { useFrame } from "@react-three/fiber";
-import { useRef, useMemo, useState, useEffect } from "react";
-import { Mesh, Vector3 } from "three";
-import { useGLTF } from "@react-three/drei";
-import * as THREE from "three";
+import { useGLTF } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { useEffect, useRef, useState } from 'react'
+import { Mesh, Vector3 } from 'three'
 
 interface CoinProps {
-  position: Vector3;
-  speed: number;
-  modelPath?: string;
+  position: Vector3
+  speed: number
+  modelPath?: string
 }
 
-function Coin({ position, speed, modelPath = "/models/coin.glb" }: CoinProps) {
-  const meshRef = useRef<Mesh>(null);
-  const { scene } = useGLTF(modelPath);
+function Coin({ position, speed, modelPath = '/models/coin.glb' }: CoinProps) {
+  const meshRef = useRef<Mesh>(null)
+  const { scene } = useGLTF(modelPath)
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
+      meshRef.current.rotation.y += 0.01
       meshRef.current.position.y =
-        position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5;
+        position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5
       meshRef.current.position.x =
-        position.x + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3;
+        position.x + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3
     }
-  });
+  })
 
   if (scene) {
     return (
@@ -34,7 +33,7 @@ function Coin({ position, speed, modelPath = "/models/coin.glb" }: CoinProps) {
         position={position}
         scale={[0.5, 0.5, 0.5]}
       />
-    );
+    )
   }
 
   return (
@@ -48,29 +47,27 @@ function Coin({ position, speed, modelPath = "/models/coin.glb" }: CoinProps) {
         roughness={0.2}
       />
     </mesh>
-  );
+  )
 }
 
 export function FloatingCoinModel() {
-  const [coins, setCoins] = useState<{ position: Vector3; speed: number }[]>(
-    []
-  );
+  const [coins, setCoins] = useState<{ position: Vector3; speed: number }[]>([])
 
   useEffect(() => {
-    const items: { position: Vector3; speed: number }[] = [];
+    const items: { position: Vector3; speed: number }[] = []
     for (let i = 0; i < 15; i++) {
       items.push({
         position: new Vector3(
           (Math.random() - 0.5) * 20,
           (Math.random() - 0.5) * 10,
-          (Math.random() - 0.5) * 10
+          (Math.random() - 0.5) * 10,
         ),
         speed: 0.5 + Math.random() * 0.5,
-      });
+      })
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCoins(items);
-  }, []);
+    setCoins(items)
+  }, [])
 
   return (
     <>
@@ -86,7 +83,7 @@ export function FloatingCoinModel() {
         />
       ))}
     </>
-  );
+  )
 }
 
-useGLTF.preload("/models/coin.glb");
+useGLTF.preload('/models/coin.glb')

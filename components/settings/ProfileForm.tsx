@@ -1,9 +1,15 @@
-"use client";
+'use client'
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
 import {
   Form,
   FormControl,
@@ -12,71 +18,62 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useUpdateProfile, useUserProfile } from "@/lib/hooks/useUser";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useState } from "react";
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { currencies } from "@/lib/constants/currencies";
+} from '@/components/ui/popover'
+import { Skeleton } from '@/components/ui/skeleton'
+import { currencies } from '@/lib/constants/currencies'
+import { useUpdateProfile, useUserProfile } from '@/lib/hooks/useUser'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: 'Name must be at least 2 characters.',
   }),
   avatarUrl: z
     .string()
-    .url({ message: "Please enter a valid URL." })
+    .url({ message: 'Please enter a valid URL.' })
     .optional()
-    .or(z.literal("")),
+    .or(z.literal('')),
   baseCurrency: z.string().min(3, {
-    message: "Please select a currency.",
+    message: 'Please select a currency.',
   }),
-});
+})
 
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-
+type ProfileFormValues = z.infer<typeof profileFormSchema>
 
 export function ProfileForm() {
-  const { data: user, isLoading } = useUserProfile();
-  const { mutate: updateProfile, isPending } = useUpdateProfile();
-  const [open, setOpen] = useState(false);
+  const { data: user, isLoading } = useUserProfile()
+  const { mutate: updateProfile, isPending } = useUpdateProfile()
+  const [open, setOpen] = useState(false)
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      name: "",
-      avatarUrl: "",
-      baseCurrency: "",
+      name: '',
+      avatarUrl: '',
+      baseCurrency: '',
     },
-  });
+  })
 
   useEffect(() => {
     if (user) {
-      console.log(user.user);
       form.reset({
         name: user.user.name,
-        avatarUrl: user.user.avatar || "",
-        baseCurrency: user.user.baseCurrency || "USD",
-      });
+        avatarUrl: user.user.avatar || '',
+        baseCurrency: user.user.baseCurrency || 'USD',
+      })
     }
-  }, [user, form]);
+  }, [user, form])
 
   function onSubmit(data: ProfileFormValues) {
     updateProfile(
@@ -86,11 +83,11 @@ export function ProfileForm() {
         baseCurrency: data.baseCurrency,
       },
       {
-        onError: (error: any) => {
-          console.error("Profile update error:", error);
+        onError: (error: unknown) => {
+          console.error('Profile update error:', error)
         },
-      }
-    );
+      },
+    )
   }
 
   if (isLoading) {
@@ -105,29 +102,32 @@ export function ProfileForm() {
         </div>
         <Skeleton className="h-[200px] w-full" />
       </div>
-    );
+    )
   }
 
   if (!user) {
     return (
-      <div className="p-4 rounded-md bg-destructive/10 text-destructive">
+      <div className="bg-destructive/10 text-destructive rounded-md p-4">
         Failed to load profile data. Please try refreshing the page.
       </div>
-    );
+    )
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+        className="space-y-8"
+      >
         <div className="flex items-center gap-x-6">
           <Avatar className="h-20 w-20">
             {/* eslint-disable-next-line react-hooks/incompatible-library */}
-            <AvatarImage src={form.watch("avatarUrl") || user?.user.avatar} />
-            <AvatarFallback>{user?.user.name?.charAt(0) || "U"}</AvatarFallback>
+            <AvatarImage src={form.watch('avatarUrl') || user?.user.avatar} />
+            <AvatarFallback>{user?.user.name?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
           <div>
             <h3 className="text-lg font-medium">Profile Picture</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Enter a URL for your avatar image.
             </p>
           </div>
@@ -183,20 +183,20 @@ export function ProfileForm() {
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[240px] justify-between",
-                        !field.value && "text-muted-foreground"
+                        'w-[240px] justify-between',
+                        !field.value && 'text-muted-foreground',
                       )}
                     >
                       {field.value
                         ? currencies.find(
-                          (currency) => currency.code === field.value
-                        )?.code
-                        : "Select currency"}
+                            (currency) => currency.code === field.value,
+                          )?.code
+                        : 'Select currency'}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-[240px] p-0" >
+                <PopoverContent className="w-[240px] p-0">
                   <Command>
                     <CommandInput placeholder="Search currency..." />
                     <CommandList>
@@ -207,19 +207,20 @@ export function ProfileForm() {
                             value={currency.name}
                             key={currency.code}
                             onSelect={() => {
-                              form.setValue("baseCurrency", currency.code);
-                              setOpen(false);
+                              form.setValue('baseCurrency', currency.code)
+                              setOpen(false)
                             }}
                           >
                             <Check
                               className={cn(
-                                "mr-2 h-4 w-4",
+                                'mr-2 h-4 w-4',
                                 currency.code === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
+                                  ? 'opacity-100'
+                                  : 'opacity-0',
                               )}
                             />
-                            {currency.code} - {currency.name} ({currency.symbol})
+                            {currency.code} - {currency.name} ({currency.symbol}
+                            )
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -228,7 +229,8 @@ export function ProfileForm() {
                 </PopoverContent>
               </Popover>
               <FormDescription>
-                This currency will be used for all your budgets and transactions.
+                This currency will be used for all your budgets and
+                transactions.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -241,5 +243,5 @@ export function ProfileForm() {
         </Button>
       </form>
     </Form>
-  );
+  )
 }

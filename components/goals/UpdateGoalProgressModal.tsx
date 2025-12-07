@@ -1,16 +1,13 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -18,23 +15,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Goal, UpdateGoalProgressData } from "@/lib/api/goals";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Goal, UpdateGoalProgressData } from '@/lib/api/goals'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const progressSchema = z.object({
-  currentSaved: z.coerce.number().min(0, "Amount cannot be negative"),
-});
+  currentSaved: z.coerce.number().min(0, 'Amount cannot be negative'),
+})
 
-type ProgressFormValues = z.infer<typeof progressSchema>;
+type ProgressFormValues = z.infer<typeof progressSchema>
 
 interface UpdateGoalProgressModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: UpdateGoalProgressData) => void;
-  goal: Goal | null;
-  isLoading?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: UpdateGoalProgressData) => void
+  goal: Goal | null
+  isLoading?: boolean
 }
 
 export function UpdateGoalProgressModal({
@@ -50,19 +50,19 @@ export function UpdateGoalProgressModal({
     defaultValues: {
       currentSaved: 0,
     },
-  });
+  })
 
   useEffect(() => {
     if (open && goal) {
       form.reset({
         currentSaved: goal.currentSaved,
-      });
+      })
     }
-  }, [open, goal, form]);
+  }, [open, goal, form])
 
   const handleSubmit = (values: ProgressFormValues) => {
-    onSubmit(values);
-  };
+    onSubmit(values)
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,13 +70,13 @@ export function UpdateGoalProgressModal({
         <DialogHeader>
           <DialogTitle>Update Progress</DialogTitle>
           <DialogDescription>
-            Update the current saved amount for{" "}
+            Update the current saved amount for{' '}
             <span className="font-semibold">{goal?.name}</span>.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={(e) => void form.handleSubmit(handleSubmit)(e)}
             className="space-y-4"
           >
             <FormField
@@ -107,12 +107,12 @@ export function UpdateGoalProgressModal({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Update"}
+                {isLoading ? 'Saving...' : 'Update'}
               </Button>
             </div>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

@@ -1,10 +1,8 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { CategorySelect } from '@/components/categories/CategorySelect'
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
 import {
   Form,
   FormControl,
@@ -12,48 +10,52 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select'
 import {
-  RecurringTransaction,
   CreateRecurringTransactionData,
-} from "@/lib/api/recurring-transactions";
-import { CategorySelect } from "@/components/categories/CategorySelect";
-import { useCategory } from "@/lib/hooks/useCategories";
-import { cn } from "@/lib/utils";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+  RecurringTransaction,
+} from '@/lib/api/recurring-transactions'
+import { useCategory } from '@/lib/hooks/useCategories'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const recurringTransactionSchema = z.object({
-  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
-  description: z.string().min(1, "Description is required"),
-  type: z.enum(["INCOME", "EXPENSE", "SAVING"]),
-  categoryId: z.string().min(1, "Category is required"),
-  frequency: z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]),
-  startDate: z.string().min(1, "Start date is required"),
+  amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
+  description: z.string().min(1, 'Description is required'),
+  type: z.enum(['INCOME', 'EXPENSE', 'SAVING']),
+  categoryId: z.string().min(1, 'Category is required'),
+  frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']),
+  startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().optional(),
-});
+})
 
-type RecurringTransactionFormValues = z.infer<
-  typeof recurringTransactionSchema
->;
+type RecurringTransactionFormValues = z.infer<typeof recurringTransactionSchema>
 
 interface RecurringTransactionFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateRecurringTransactionData) => void;
-  initialData?: RecurringTransaction | null;
-  isLoading?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CreateRecurringTransactionData) => void
+  initialData?: RecurringTransaction | null
+  isLoading?: boolean
 }
 
 export function RecurringTransactionForm({
@@ -63,74 +65,79 @@ export function RecurringTransactionForm({
   initialData,
   isLoading,
 }: RecurringTransactionFormProps) {
-  const { data: initialCategory } = useCategory(initialData?.categoryId || "");
+  const { data: initialCategory } = useCategory(initialData?.categoryId || '')
 
   const form = useForm<RecurringTransactionFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(recurringTransactionSchema) as any,
     defaultValues: {
       amount: 0,
-      description: "",
-      type: "EXPENSE",
-      categoryId: "",
-      frequency: "MONTHLY",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: "",
+      description: '',
+      type: 'EXPENSE',
+      categoryId: '',
+      frequency: 'MONTHLY',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
     },
-  });
+  })
 
-  const selectedType = form.watch("type");
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const selectedType = form.watch('type')
 
   useEffect(() => {
     if (open) {
       if (initialData) {
         form.reset({
           amount: initialData.amount,
-          description: initialData.description || "",
-          type: initialCategory?.type || "EXPENSE",
+          description: initialData.description || '',
+          type: initialCategory?.type || 'EXPENSE',
           categoryId: initialData.categoryId,
           frequency: initialData.frequency,
-          startDate: initialData.startDate.split("T")[0],
-          endDate: initialData.endDate ? initialData.endDate.split("T")[0] : "",
-        });
+          startDate: initialData.startDate.split('T')[0],
+          endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
+        })
       } else {
         form.reset({
           amount: 0,
-          description: "",
-          type: "EXPENSE",
-          categoryId: "",
-          frequency: "MONTHLY",
-          startDate: new Date().toISOString().split("T")[0],
-          endDate: "",
-        });
+          description: '',
+          type: 'EXPENSE',
+          categoryId: '',
+          frequency: 'MONTHLY',
+          startDate: new Date().toISOString().split('T')[0],
+          endDate: '',
+        })
       }
     }
-  }, [open, initialData, form, initialCategory]);
+  }, [open, initialData, form, initialCategory])
 
   const handleSubmit = (values: RecurringTransactionFormValues) => {
     // We don't send 'type' to the API
-    const { type, ...data } = values;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { type: _type, ...data } = values
     onSubmit({
       ...data,
       endDate: data.endDate || undefined,
-    });
-  };
+    })
+  }
 
   return (
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
       title={
-        initialData ? "Edit Recurring Transaction" : "Add Recurring Transaction"
+        initialData ? 'Edit Recurring Transaction' : 'Add Recurring Transaction'
       }
       description={
         initialData
-          ? "Edit the details of your recurring transaction."
-          : "Create a new recurring transaction to track automated expenses or income."
+          ? 'Edit the details of your recurring transaction.'
+          : 'Create a new recurring transaction to track automated expenses or income.'
       }
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => void form.handleSubmit(handleSubmit)(e)}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="description"
@@ -173,8 +180,8 @@ export function RecurringTransactionForm({
                   <FormLabel>Type</FormLabel>
                   <Select
                     onValueChange={(val) => {
-                      field.onChange(val);
-                      form.setValue("categoryId", "");
+                      field.onChange(val)
+                      form.setValue('categoryId', '')
                     }}
                     value={field.value}
                   >
@@ -202,7 +209,7 @@ export function RecurringTransactionForm({
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <CategorySelect
-                  value={field.value || ""}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   type={selectedType}
                   placeholder="Select category"
@@ -252,14 +259,14 @@ export function RecurringTransactionForm({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground',
                           )}
                         >
                           {field.value ? (
-                            format(new Date(field.value), "PPP")
+                            format(new Date(field.value), 'PPP')
                           ) : (
                             <span>Pick a date</span>
                           )}
@@ -270,7 +277,9 @@ export function RecurringTransactionForm({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={(date) => field.onChange(date?.toISOString())}
                         initialFocus
                       />
@@ -291,14 +300,14 @@ export function RecurringTransactionForm({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground',
                           )}
                         >
                           {field.value ? (
-                            format(new Date(field.value), "PPP")
+                            format(new Date(field.value), 'PPP')
                           ) : (
                             <span>Pick a date</span>
                           )}
@@ -309,7 +318,9 @@ export function RecurringTransactionForm({
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={(date) => field.onChange(date?.toISOString())}
                         initialFocus
                       />
@@ -330,11 +341,11 @@ export function RecurringTransactionForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : initialData ? "Update" : "Create"}
+              {isLoading ? 'Saving...' : initialData ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>
       </Form>
     </ResponsiveDialog>
-  );
+  )
 }

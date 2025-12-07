@@ -4,6 +4,7 @@ import { Hero3D } from "@/components/landing/Hero3D";
 import { Features } from "@/components/landing/Features";
 import { InteractivePieChart } from "@/components/landing/InteractivePieChart";
 import { AnalyticsPreview } from "@/components/landing/AnalyticsPreview";
+import { Testimonials } from "@/components/landing/Testimonials";
 import { Pricing } from "@/components/landing/Pricing";
 import { Footer } from "@/components/landing/Footer";
 import { useEffect } from "react";
@@ -16,29 +17,7 @@ if (typeof window !== "undefined") {
 
 export default function Home() {
   useEffect(() => {
-    const sections = document.querySelectorAll("section");
-
-    sections.forEach((section) => {
-      gsap.fromTo(
-        section,
-        {
-          opacity: 0,
-          y: 50,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          scrollTrigger: {
-            trigger: section,
-            start: "top 80%",
-            end: "bottom 20%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
-    });
-
+    // Component-specific animations are handled within the components themselves
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
@@ -50,6 +29,7 @@ export default function Home() {
       <Features />
       <InteractivePieChart />
       <AnalyticsPreview />
+      <Testimonials />
       <Pricing />
       <Footer />
     </main>

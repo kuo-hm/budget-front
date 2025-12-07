@@ -1,9 +1,6 @@
-"use client";
+'use client'
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -11,76 +8,79 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+} from '@/components/ui/select'
+import { Category } from '@/lib/api/categories'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Loader2,
-  ShoppingCart,
-  Home,
-  Car,
-  Utensils,
-  Heart,
-  Plane,
-  Gamepad2,
-  GraduationCap,
-  Gift,
-  Briefcase,
-  Zap,
-  Wallet,
-  CreditCard,
-  Banknote,
-  ShoppingBag,
-  Bus,
-  Coffee,
-  Pizza,
   Activity,
-  Map,
-  Tv,
-  MoreHorizontal,
-  Smartphone,
-  Wifi,
-  Music,
-  Film,
-  Dumbbell,
-  Stethoscope,
   Baby,
-  Dog,
-  Cat,
-  Hammer,
-  Wrench,
+  Banknote,
   Book,
-  Pen,
-  Smile,
+  Briefcase,
+  Bus,
+  Car,
+  Cat,
+  Coffee,
+  CreditCard,
+  Dog,
+  Dumbbell,
+  Film,
+  Gamepad2,
+  Gift,
+  GraduationCap,
+  Hammer,
+  Heart,
+  Home,
+  Loader2,
   LucideIcon,
-} from "lucide-react";
-import { Category, CreateCategoryData } from "@/lib/api/categories";
-import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+  Map,
+  MoreHorizontal,
+  Music,
+  Pen,
+  Pizza,
+  Plane,
+  ShoppingBag,
+  ShoppingCart,
+  Smartphone,
+  Smile,
+  Stethoscope,
+  Tv,
+  Utensils,
+  Wallet,
+  Wifi,
+  Wrench,
+  Zap,
+} from 'lucide-react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const categoryFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  type: z.enum(["INCOME", "EXPENSE", "SAVING"]),
+  name: z.string().min(1, 'Name is required'),
+  type: z.enum(['INCOME', 'EXPENSE', 'SAVING']),
   icon: z.string().optional(),
-});
+})
 
-export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+export type CategoryFormValues = z.infer<typeof categoryFormSchema>
 
 // Map of icon names to Lucide components
 const iconMap: Record<string, LucideIcon> = {
-  "shopping-cart": ShoppingCart,
+  'shopping-cart': ShoppingCart,
   home: Home,
   car: Car,
   utensils: Utensils,
@@ -92,9 +92,9 @@ const iconMap: Record<string, LucideIcon> = {
   briefcase: Briefcase,
   zap: Zap,
   wallet: Wallet,
-  "credit-card": CreditCard,
+  'credit-card': CreditCard,
   banknote: Banknote,
-  "shopping-bag": ShoppingBag,
+  'shopping-bag': ShoppingBag,
   bus: Bus,
   coffee: Coffee,
   pizza: Pizza,
@@ -116,18 +116,17 @@ const iconMap: Record<string, LucideIcon> = {
   pen: Pen,
   smile: Smile,
   other: MoreHorizontal,
+}
 
-};
-
-const iconOptions = Object.keys(iconMap);
+const iconOptions = Object.keys(iconMap)
 
 interface CategoryFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CategoryFormValues) => void;
-  initialData?: Category | null;
-  isLoading?: boolean;
-  defaultType?: "INCOME" | "EXPENSE" | "SAVING";
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CategoryFormValues) => void
+  initialData?: Category | null
+  isLoading?: boolean
+  defaultType?: 'INCOME' | 'EXPENSE' | 'SAVING'
 }
 
 export function CategoryForm({
@@ -136,16 +135,16 @@ export function CategoryForm({
   onSubmit,
   initialData,
   isLoading,
-  defaultType = "EXPENSE",
+  defaultType = 'EXPENSE',
 }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: {
-      name: "",
+      name: '',
       type: defaultType,
-      icon: "other",
+      icon: 'other',
     },
-  });
+  })
 
   useEffect(() => {
     if (open) {
@@ -153,39 +152,39 @@ export function CategoryForm({
         form.reset({
           name: initialData.name,
           type: initialData.type,
-          icon: initialData.icon || "other",
-        });
+          icon: initialData.icon || 'other',
+        })
       } else {
         form.reset({
-          name: "",
+          name: '',
           type: defaultType,
-          icon: "other",
-        });
+          icon: 'other',
+        })
       }
     }
-  }, [initialData, form, open, defaultType]);
+  }, [initialData, form, open, defaultType])
 
   const renderIcon = (iconName?: string, className?: string) => {
-    const IconComponent = iconMap[iconName || "other"] || MoreHorizontal;
-    return <IconComponent className={className} />;
-  };
+    const IconComponent = iconMap[iconName || 'other'] || MoreHorizontal
+    return <IconComponent className={className} />
+  }
 
   return (
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={initialData ? "Edit Category" : "Add Category"}
+      title={initialData ? 'Edit Category' : 'Add Category'}
       description={
         initialData
-          ? "Update the details of your category."
-          : "Create a new category for your transactions."
+          ? 'Update the details of your category.'
+          : 'Create a new category for your transactions.'
       }
     >
       <Form {...form}>
         <form
           onSubmit={(e) => {
-            e.stopPropagation();
-            form.handleSubmit(onSubmit)(e);
+            e.stopPropagation()
+            form.handleSubmit(onSubmit)(e)
           }}
           className="space-y-4"
         >
@@ -241,19 +240,19 @@ export function CategoryForm({
                         variant="outline"
                         role="combobox"
                         className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
+                          'w-full justify-between',
+                          !field.value && 'text-muted-foreground',
                         )}
                       >
                         {field.value ? (
                           <div className="flex items-center gap-2">
-                            {renderIcon(field.value, "h-4 w-4")}
+                            {renderIcon(field.value, 'h-4 w-4')}
                             <span className="capitalize">
-                              {field.value.replace("-", " ")}
+                              {field.value.replace('-', ' ')}
                             </span>
                           </div>
                         ) : (
-                          "Select icon"
+                          'Select icon'
                         )}
                       </Button>
                     </FormControl>
@@ -265,14 +264,14 @@ export function CategoryForm({
                           key={icon}
                           variant="ghost"
                           className={cn(
-                            "h-10 w-10 p-0",
-                            field.value === icon && "bg-muted"
+                            'h-10 w-10 p-0',
+                            field.value === icon && 'bg-muted',
                           )}
                           onClick={() => {
-                            form.setValue("icon", icon);
+                            form.setValue('icon', icon)
                           }}
                         >
-                          {renderIcon(icon, "h-5 w-5")}
+                          {renderIcon(icon, 'h-5 w-5')}
                           <span className="sr-only">{icon}</span>
                         </Button>
                       ))}
@@ -296,11 +295,11 @@ export function CategoryForm({
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {initialData ? "Update" : "Create"}
+              {initialData ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>
       </Form>
     </ResponsiveDialog>
-  );
+  )
 }

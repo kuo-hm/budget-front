@@ -1,7 +1,9 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import {
+  CategoryForm,
+  CategoryFormValues,
+} from '@/components/categories/CategoryForm'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,67 +14,65 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Loader2,
-  Plus,
-  Pencil,
-  Trash2,
-  Tag,
-  ShoppingCart,
-  Home,
-  Car,
-  Utensils,
-  Heart,
-  Plane,
-  Gamepad2,
-  GraduationCap,
-  Gift,
-  Briefcase,
-  Zap,
-  Wallet,
-  CreditCard,
-  Banknote,
-  ShoppingBag,
-  Bus,
-  Coffee,
-  Pizza,
-  Activity,
-  Map,
-  Tv,
-  MoreHorizontal,
-  Smartphone,
-  Wifi,
-  Music,
-  Film,
-  Dumbbell,
-  Stethoscope,
-  Baby,
-  Dog,
-  Cat,
-  Hammer,
-  Wrench,
-  Book,
-  Pen,
-  Smile,
-  LucideIcon,
-} from "lucide-react";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Category } from '@/lib/api/categories'
 import {
   useCategories,
   useCreateCategory,
   useDeleteCategory,
   useUpdateCategory,
-} from "@/lib/hooks/useCategories";
-import { Category } from "@/lib/api/categories";
+} from '@/lib/hooks/useCategories'
 import {
-  CategoryForm,
-  CategoryFormValues,
-} from "@/components/categories/CategoryForm";
+  Activity,
+  Baby,
+  Banknote,
+  Book,
+  Briefcase,
+  Bus,
+  Car,
+  Cat,
+  Coffee,
+  CreditCard,
+  Dog,
+  Dumbbell,
+  Film,
+  Gamepad2,
+  Gift,
+  GraduationCap,
+  Hammer,
+  Heart,
+  Home,
+  Loader2,
+  LucideIcon,
+  Map,
+  MoreHorizontal,
+  Music,
+  Pen,
+  Pencil,
+  Pizza,
+  Plane,
+  Plus,
+  ShoppingBag,
+  ShoppingCart,
+  Smartphone,
+  Smile,
+  Stethoscope,
+  Tag,
+  Trash2,
+  Tv,
+  Utensils,
+  Wallet,
+  Wifi,
+  Wrench,
+  Zap,
+} from 'lucide-react'
+import { useState } from 'react'
 
 // Map of icon names to Lucide components (duplicated for display purposes, could be shared)
 const iconMap: Record<string, LucideIcon> = {
-  "shopping-cart": ShoppingCart,
+  'shopping-cart': ShoppingCart,
   home: Home,
   car: Car,
   utensils: Utensils,
@@ -84,9 +84,9 @@ const iconMap: Record<string, LucideIcon> = {
   briefcase: Briefcase,
   zap: Zap,
   wallet: Wallet,
-  "credit-card": CreditCard,
+  'credit-card': CreditCard,
   banknote: Banknote,
-  "shopping-bag": ShoppingBag,
+  'shopping-bag': ShoppingBag,
   bus: Bus,
   coffee: Coffee,
   pizza: Pizza,
@@ -108,29 +108,29 @@ const iconMap: Record<string, LucideIcon> = {
   pen: Pen,
   smile: Smile,
   other: MoreHorizontal,
-};
+}
 
 export function CategoryManager() {
   const {
     data: categories,
     isLoading,
     error: categoriesError,
-  } = useCategories();
-  const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
-  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
-  const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory();
+  } = useCategories()
+  const { mutate: createCategory, isPending: isCreating } = useCreateCategory()
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory()
+  const { mutate: deleteCategory } = useDeleteCategory()
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
 
   const handleOpenDialog = (category?: Category) => {
     if (category) {
-      setEditingCategory(category);
+      setEditingCategory(category)
     } else {
-      setEditingCategory(null);
+      setEditingCategory(null)
     }
-    setIsDialogOpen(true);
-  };
+    setIsDialogOpen(true)
+  }
 
   const onSubmit = (data: CategoryFormValues) => {
     if (editingCategory) {
@@ -138,49 +138,52 @@ export function CategoryManager() {
         { id: editingCategory.id, data },
         {
           onSuccess: () => setIsDialogOpen(false),
-        }
-      );
+        },
+      )
     } else {
       createCategory(data, {
         onSuccess: () => setIsDialogOpen(false),
-      });
+      })
     }
-  };
+  }
 
-  const groupedCategories = categories?.reduce((acc, category) => {
-    const type = category.type;
-    if (!acc[type]) acc[type] = [];
-    acc[type].push(category);
-    return acc;
-  }, {} as Record<string, Category[]>);
+  const groupedCategories = categories?.reduce(
+    (acc, category) => {
+      const type = category.type
+      if (!acc[type]) acc[type] = []
+      acc[type].push(category)
+      return acc
+    },
+    {} as Record<string, Category[]>,
+  )
 
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-    );
+    )
   }
 
   if (categoriesError) {
     return (
-      <div className="p-8 rounded-md bg-destructive/10 text-destructive text-center">
+      <div className="bg-destructive/10 text-destructive rounded-md p-8 text-center">
         Failed to load categories. Please try refreshing the page.
       </div>
-    );
+    )
   }
 
   const renderIcon = (iconName?: string, className?: string) => {
-    const IconComponent = iconMap[iconName || "other"] || MoreHorizontal;
-    return <IconComponent className={className} />;
-  };
+    const IconComponent = iconMap[iconName || 'other'] || MoreHorizontal
+    return <IconComponent className={className} />
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-medium">Categories</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Manage your transaction categories.
           </p>
         </div>
@@ -199,7 +202,7 @@ export function CategoryManager() {
       />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {["INCOME", "EXPENSE", "SAVING"].map((type) => (
+        {['INCOME', 'EXPENSE', 'SAVING'].map((type) => (
           <Card key={type} className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
@@ -214,8 +217,8 @@ export function CategoryManager() {
                   className="flex items-center justify-between rounded-md border p-2"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      {renderIcon(category.icon, "h-4 w-4")}
+                    <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full">
+                      {renderIcon(category.icon, 'h-4 w-4')}
                     </div>
                     <span className="text-sm font-medium">{category.name}</span>
                   </div>
@@ -233,7 +236,7 @@ export function CategoryManager() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          className="text-destructive hover:text-destructive h-8 w-8"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -263,7 +266,7 @@ export function CategoryManager() {
               ))}
               {(!groupedCategories?.[type] ||
                 groupedCategories[type].length === 0) && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   No categories found.
                 </p>
               )}
@@ -272,5 +275,5 @@ export function CategoryManager() {
         ))}
       </div>
     </div>
-  );
+  )
 }
