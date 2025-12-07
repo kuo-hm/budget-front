@@ -1,12 +1,20 @@
-"use client";
+'use client'
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { CalendarIcon, Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -14,37 +22,29 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { useAddDebtPayment } from "@/lib/hooks/useDebts";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/popover'
+import { Textarea } from '@/components/ui/textarea'
+import { useAddDebtPayment } from '@/lib/hooks/useDebts'
+import { cn } from '@/lib/utils'
 
 const paymentFormSchema = z.object({
-  amount: z.coerce.number().min(0.01, "Amount must be positive"),
-  paymentDate: z.date({ required_error: "Payment date is required" }),
+  amount: z.coerce.number().min(0.01, 'Amount must be positive'),
+  paymentDate: z.date(),
   notes: z.string().optional(),
-});
+})
 
-type PaymentFormValues = z.infer<typeof paymentFormSchema>;
+type PaymentFormValues = z.infer<typeof paymentFormSchema>
 
 interface AddPaymentDialogProps {
-  debtId: string;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  debtId: string
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function AddPaymentDialog({
@@ -52,16 +52,17 @@ export function AddPaymentDialog({
   isOpen,
   onOpenChange,
 }: AddPaymentDialogProps) {
-  const { mutate: addPayment, isPending } = useAddDebtPayment();
+  const { mutate: addPayment, isPending } = useAddDebtPayment()
 
   const form = useForm<PaymentFormValues>({
-    resolver: zodResolver(paymentFormSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(paymentFormSchema) as any,
     defaultValues: {
       amount: 0,
       paymentDate: new Date(),
-      notes: "",
+      notes: '',
     },
-  });
+  })
 
   function onSubmit(data: PaymentFormValues) {
     addPayment(
@@ -74,11 +75,11 @@ export function AddPaymentDialog({
       },
       {
         onSuccess: () => {
-          form.reset();
-          onOpenChange(false);
+          form.reset()
+          onOpenChange(false)
         },
-      }
-    );
+      },
+    )
   }
 
   return (
@@ -91,7 +92,10 @@ export function AddPaymentDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+            className="space-y-4"
+          >
             <FormField
               control={form.control}
               name="amount"
@@ -116,14 +120,14 @@ export function AddPaymentDialog({
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground',
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, 'PPP')
                           ) : (
                             <span>Pick a date</span>
                           )}
@@ -137,7 +141,7 @@ export function AddPaymentDialog({
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
+                          date > new Date() || date < new Date('1900-01-01')
                         }
                         initialFocus
                       />
@@ -170,5 +174,5 @@ export function AddPaymentDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

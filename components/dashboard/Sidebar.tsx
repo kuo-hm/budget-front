@@ -10,6 +10,8 @@ import {
   Target,
   Wallet,
   Repeat,
+  CreditCard,
+  TrendingUp,
 } from "lucide-react";
 
 const navigation = [

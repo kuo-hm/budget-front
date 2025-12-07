@@ -1,71 +1,71 @@
-"use client";
+'use client'
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { format } from 'date-fns'
+import { CalendarIcon, Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar' // Ensure this component exists, or use native date input if preferred/simpler
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar"; // Ensure this component exists, or use native date input if preferred/simpler
-import { cn } from "@/lib/utils";
-import { Debt, DebtType, PaymentFrequency } from "@/lib/api/debts";
-import { useCreateDebt, useUpdateDebt } from "@/lib/hooks/useDebts";
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Debt, DebtType, PaymentFrequency } from '@/lib/api/debts'
+import { useCreateDebt, useUpdateDebt } from '@/lib/hooks/useDebts'
+import { cn } from '@/lib/utils'
 
 const debtFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, 'Name is required'),
   type: z.nativeEnum(DebtType),
-  principalAmount: z.coerce.number().min(0, "Amount must be positive"),
-  currentBalance: z.coerce.number().min(0, "Balance must be positive"),
-  interestRate: z.coerce.number().min(0, "Interest rate must be positive"),
-  minimumPayment: z.coerce.number().min(0, "Payment must be positive"),
+  principalAmount: z.coerce.number().min(0, 'Amount must be positive'),
+  currentBalance: z.coerce.number().min(0, 'Balance must be positive'),
+  interestRate: z.coerce.number().min(0, 'Interest rate must be positive'),
+  minimumPayment: z.coerce.number().min(0, 'Payment must be positive'),
   paymentFrequency: z.nativeEnum(PaymentFrequency),
-  startDate: z.date({ required_error: "Start date is required" }),
+  startDate: z.date(),
   endDate: z.date().optional(),
   notes: z.string().optional(),
-});
+})
 
-type DebtFormValues = z.infer<typeof debtFormSchema>;
+type DebtFormValues = z.infer<typeof debtFormSchema>
 
 interface DebtFormProps {
-  debt?: Debt;
-  onSuccess?: () => void;
+  debt?: Debt
+  onSuccess?: () => void
 }
 
 export function DebtForm({ debt, onSuccess }: DebtFormProps) {
-  const { mutate: createDebt, isPending: isCreating } = useCreateDebt();
-  const { mutate: updateDebt, isPending: isUpdating } = useUpdateDebt();
+  const { mutate: createDebt, isPending: isCreating } = useCreateDebt()
+  const { mutate: updateDebt, isPending: isUpdating } = useUpdateDebt()
 
-  const isEditing = !!debt;
-  const isPending = isCreating || isUpdating;
+  const isEditing = !!debt
+  const isPending = isCreating || isUpdating
 
   const form = useForm<DebtFormValues>({
-    resolver: zodResolver(debtFormSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(debtFormSchema) as any,
     defaultValues: {
-      name: debt?.name || "",
+      name: debt?.name || '',
       type: debt?.type || DebtType.CREDIT_CARD,
       principalAmount: debt?.principalAmount || 0,
       currentBalance: debt?.currentBalance || 0,
@@ -74,30 +74,30 @@ export function DebtForm({ debt, onSuccess }: DebtFormProps) {
       paymentFrequency: debt?.paymentFrequency || PaymentFrequency.MONTHLY,
       startDate: debt?.startDate ? new Date(debt.startDate) : new Date(),
       endDate: debt?.endDate ? new Date(debt.endDate) : undefined,
-      notes: debt?.notes || "",
+      notes: debt?.notes || '',
     },
-  });
+  })
 
   function onSubmit(data: DebtFormValues) {
     const formattedData = {
       ...data,
       startDate: data.startDate.toISOString(),
       endDate: data.endDate?.toISOString(),
-    };
+    }
 
     if (isEditing && debt) {
-      updateDebt(
-        { id: debt.id, data: formattedData },
-        { onSuccess }
-      );
+      updateDebt({ id: debt.id, data: formattedData }, { onSuccess })
     } else {
-      createDebt(formattedData, { onSuccess });
+      createDebt(formattedData, { onSuccess })
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}
+        className="space-y-4"
+      >
         <FormField
           control={form.control}
           name="name"
@@ -131,7 +131,7 @@ export function DebtForm({ debt, onSuccess }: DebtFormProps) {
                   <SelectContent>
                     {Object.values(DebtType).map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type.replace("_", " ")}
+                        {type.replace('_', ' ')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -238,14 +238,14 @@ export function DebtForm({ debt, onSuccess }: DebtFormProps) {
                 <PopoverTrigger asChild>
                   <FormControl>
                     <Button
-                      variant={"outline"}
+                      variant={'outline'}
                       className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
+                        'w-full pl-3 text-left font-normal',
+                        !field.value && 'text-muted-foreground',
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(field.value, 'PPP')
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -259,7 +259,7 @@ export function DebtForm({ debt, onSuccess }: DebtFormProps) {
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
+                      date > new Date() || date < new Date('1900-01-01')
                     }
                     initialFocus
                   />
@@ -286,9 +286,9 @@ export function DebtForm({ debt, onSuccess }: DebtFormProps) {
 
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditing ? "Update Debt" : "Create Debt"}
+          {isEditing ? 'Update Debt' : 'Create Debt'}
         </Button>
       </form>
     </Form>
-  );
+  )
 }

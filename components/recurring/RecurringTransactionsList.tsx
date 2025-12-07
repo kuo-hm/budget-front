@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import {
-  useRecurringTransactions,
-  useDeleteRecurringTransaction,
-} from "@/lib/hooks/useRecurringTransactions";
-import { useCategories } from "@/lib/hooks/useCategories";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -12,34 +12,34 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Trash2, Loader2, AlertCircle } from "lucide-react";
-import { format } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+} from '@/components/ui/table'
+import { useCategories } from '@/lib/hooks/useCategories'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import {
+  useDeleteRecurringTransaction,
+  useRecurringTransactions,
+} from '@/lib/hooks/useRecurringTransactions'
+import { format } from 'date-fns'
+import { AlertCircle, Loader2, Trash2 } from 'lucide-react'
 
 export function RecurringTransactionsList() {
-  const { data: transactions, isLoading, error } = useRecurringTransactions();
-  const { data: categories } = useCategories();
-  const { format: formatCurrency } = useCurrency();
-  const deleteMutation = useDeleteRecurringTransaction();
+  const { data: transactions, isLoading, error } = useRecurringTransactions()
+  const { data: categories } = useCategories()
+  const { format: formatCurrency } = useCurrency()
+  const deleteMutation = useDeleteRecurringTransaction()
 
   const getCategoryName = (categoryId: string) => {
-    const category = categories?.find((c) => c.id === categoryId);
-    return category ? category.name : "Unknown";
-  };
+    const category = categories?.find((c) => c.id === categoryId)
+    return category ? category.name : 'Unknown'
+  }
 
   const handleDelete = async (id: string) => {
     if (
-      confirm("Are you sure you want to delete this recurring transaction?")
+      confirm('Are you sure you want to delete this recurring transaction?')
     ) {
-      await deleteMutation.mutateAsync(id);
+      await deleteMutation.mutateAsync(id)
     }
-  };
+  }
 
   if (isLoading) {
     return (
@@ -55,7 +55,7 @@ export function RecurringTransactionsList() {
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   if (error) {
@@ -67,7 +67,7 @@ export function RecurringTransactionsList() {
           Failed to load recurring transactions.
         </AlertDescription>
       </Alert>
-    );
+    )
   }
 
   if (!transactions || transactions.length === 0) {
@@ -77,12 +77,12 @@ export function RecurringTransactionsList() {
           <CardTitle>Recurring Transactions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-6 text-muted-foreground">
+          <div className="text-muted-foreground py-6 text-center">
             No recurring transactions found.
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -109,30 +109,28 @@ export function RecurringTransactionsList() {
                 <TableCell className="font-medium">
                   {transaction.description}
                 </TableCell>
-                <TableCell>
-                  {formatCurrency(transaction.amount)}
-                </TableCell>
+                <TableCell>{formatCurrency(transaction.amount)}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">{transaction.frequency}</Badge>
                 </TableCell>
                 <TableCell>{getCategoryName(transaction.categoryId)}</TableCell>
                 <TableCell>
-                  {format(new Date(transaction.startDate), "MMM d, yyyy")}
+                  {format(new Date(transaction.startDate), 'MMM d, yyyy')}
                 </TableCell>
                 <TableCell>
-                  {format(new Date(transaction.nextRunDate), "MMM d, yyyy")}
+                  {format(new Date(transaction.nextRunDate), 'MMM d, yyyy')}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(transaction.id)}
+                    onClick={() => void handleDelete(transaction.id)}
                     disabled={deleteMutation.isPending}
                   >
                     {deleteMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <Trash2 className="text-destructive h-4 w-4" />
                     )}
                   </Button>
                 </TableCell>
@@ -142,5 +140,5 @@ export function RecurringTransactionsList() {
         </Table>
       </CardContent>
     </Card>
-  );
+  )
 }

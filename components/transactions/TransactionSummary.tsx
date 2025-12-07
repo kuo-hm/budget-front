@@ -1,29 +1,26 @@
-"use client";
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  TransactionSummary as SummaryType,
-  transactionsApi,
-} from "@/lib/api/transactions";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowDownIcon, ArrowUpIcon, DollarSign, Wallet } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
-import { TRANSACTION_KEYS } from "@/lib/hooks/useTransactions";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { transactionsApi } from '@/lib/api/transactions'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { TRANSACTION_KEYS } from '@/lib/hooks/useTransactions'
+import { useQuery } from '@tanstack/react-query'
+import { motion } from 'framer-motion'
+import { ArrowDownIcon, ArrowUpIcon, DollarSign, Wallet } from 'lucide-react'
 
 interface TransactionSummaryProps {
-  startDate?: string;
-  endDate?: string;
+  startDate?: string
+  endDate?: string
 }
 
 export function TransactionSummary({
   startDate,
   endDate,
 }: TransactionSummaryProps) {
-  const { format, isLoading: isCurrencyLoading } = useCurrency();
+  const { format, isLoading: isCurrencyLoading } = useCurrency()
   const { data: summary, isLoading: isSummaryLoading } = useQuery({
-    queryKey: TRANSACTION_KEYS.summary(startDate || "", endDate || ""),
+    queryKey: TRANSACTION_KEYS.summary(startDate || '', endDate || ''),
     queryFn: () => {
       // Default to current month if no dates provided
       const start =
@@ -31,14 +28,14 @@ export function TransactionSummary({
         new Date(
           new Date().getFullYear(),
           new Date().getMonth(),
-          1
-        ).toISOString();
-      const end = endDate || new Date().toISOString();
-      return transactionsApi.getSummary(start, end);
+          1,
+        ).toISOString()
+      const end = endDate || new Date().toISOString()
+      return transactionsApi.getSummary(start, end)
     },
-  });
+  })
 
-  const isLoading = isSummaryLoading || isCurrencyLoading;
+  const isLoading = isSummaryLoading || isCurrencyLoading
 
   if (isLoading) {
     return (
@@ -57,7 +54,7 @@ export function TransactionSummary({
           </Card>
         ))}
       </div>
-    );
+    )
   }
 
   const container = {
@@ -68,12 +65,12 @@ export function TransactionSummary({
         staggerChildren: 0.1,
       },
     },
-  };
+  }
 
   const item = {
     hidden: { y: 20, opacity: 0 },
     show: { y: 0, opacity: 1 },
-  };
+  }
 
   return (
     <motion.div
@@ -85,7 +82,9 @@ export function TransactionSummary({
       <motion.div variants={item}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Total Income</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Monthly Total Income
+            </CardTitle>
             <ArrowUpIcon className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
@@ -119,7 +118,9 @@ export function TransactionSummary({
       <motion.div variants={item}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Total Savings</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Monthly Total Savings
+            </CardTitle>
             <Wallet className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
@@ -135,15 +136,18 @@ export function TransactionSummary({
       <motion.div variants={item}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Net Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Monthly Net Balance
+            </CardTitle>
+            <DollarSign className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div
-              className={`text-2xl font-bold ${(summary?.netBalance || 0) >= 0
-                ? "text-emerald-500"
-                : "text-rose-500"
-                }`}
+              className={`text-2xl font-bold ${
+                (summary?.netBalance || 0) >= 0
+                  ? 'text-emerald-500'
+                  : 'text-rose-500'
+              }`}
             >
               {format(summary?.netBalance || 0)}
             </div>
@@ -151,5 +155,5 @@ export function TransactionSummary({
         </Card>
       </motion.div>
     </motion.div>
-  );
+  )
 }

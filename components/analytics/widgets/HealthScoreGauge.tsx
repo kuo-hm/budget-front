@@ -1,30 +1,30 @@
-"use client";
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HealthScore } from "@/lib/api/analytics";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { HealthScore } from '@/lib/api/analytics'
+import { cn } from '@/lib/utils'
+import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 
 interface HealthScoreGaugeProps {
-  data?: HealthScore;
-  isLoading: boolean;
+  data?: HealthScore
+  isLoading: boolean
 }
 
 export function HealthScoreGauge({ data, isLoading }: HealthScoreGaugeProps) {
   if (isLoading) {
-    return <Skeleton className="h-[350px] w-full rounded-xl" />;
+    return <Skeleton className="h-[350px] w-full rounded-xl" />
   }
 
-  if (!data) return null;
+  if (!data) return null
 
   const getColor = (score: number) => {
-    if (score >= 80) return "text-emerald-500";
-    if (score >= 60) return "text-amber-500";
-    return "text-rose-500";
-  };
+    if (score >= 80) return 'text-emerald-500'
+    if (score >= 60) return 'text-amber-500'
+    return 'text-rose-500'
+  }
 
-  const color = getColor(data.score);
+  const color = getColor(data.score)
 
   return (
     <Card>
@@ -34,7 +34,7 @@ export function HealthScoreGauge({ data, isLoading }: HealthScoreGaugeProps) {
       <CardContent>
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="relative flex items-center justify-center">
-            <svg className="h-40 w-40 transform -rotate-90">
+            <svg className="h-40 w-40 -rotate-90 transform">
               <circle
                 className="text-muted/20"
                 strokeWidth="12"
@@ -45,7 +45,7 @@ export function HealthScoreGauge({ data, isLoading }: HealthScoreGaugeProps) {
                 cy="80"
               />
               <circle
-                className={cn("transition-all duration-1000 ease-out", color)}
+                className={cn('transition-all duration-1000 ease-out', color)}
                 strokeWidth="12"
                 strokeDasharray={2 * Math.PI * 70}
                 strokeDashoffset={2 * Math.PI * 70 * (1 - data.score / 100)}
@@ -58,10 +58,10 @@ export function HealthScoreGauge({ data, isLoading }: HealthScoreGaugeProps) {
               />
             </svg>
             <div className="absolute flex flex-col items-center">
-              <span className={cn("text-4xl font-bold", color)}>
+              <span className={cn('text-4xl font-bold', color)}>
                 {data.score}
               </span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {data.status}
               </span>
             </div>
@@ -71,14 +71,14 @@ export function HealthScoreGauge({ data, isLoading }: HealthScoreGaugeProps) {
             {Array.isArray(data.factors) &&
               data.factors.map((factor, index) => (
                 <div key={index} className="flex items-start space-x-2 text-sm">
-                  {factor.impact === "POSITIVE" ? (
+                  {factor.impact === 'POSITIVE' ? (
                     <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-500" />
                   ) : (
                     <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-500" />
                   )}
                   <div>
                     <p className="font-medium">{factor.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {factor.description}
                     </p>
                   </div>
@@ -88,5 +88,5 @@ export function HealthScoreGauge({ data, isLoading }: HealthScoreGaugeProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

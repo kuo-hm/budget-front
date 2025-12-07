@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ['/', '/login', '/register', '/verified', '/auth/verify-email', "/forgot-password"];
+  const publicRoutes = ['/', '/login', '/register', '/verified', '/auth/verify-email', "/forgot-password", "/auth/check-email"];
 
   // Check if the current path is a public route
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));

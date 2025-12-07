@@ -1,20 +1,8 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { GoalList } from "@/components/goals/GoalList";
-import { GoalForm } from "@/components/goals/GoalForm";
-import { UpdateGoalProgressModal } from "@/components/goals/UpdateGoalProgressModal";
-import {
-  useGoals,
-  useCreateGoal,
-  useUpdateGoal,
-  useUpdateGoalProgress,
-  useDeleteGoal,
-} from "@/lib/hooks/useGoals";
-import { Goal, CreateGoalData, UpdateGoalProgressData } from "@/lib/api/goals";
-import { toast } from "sonner";
+import { GoalForm } from '@/components/goals/GoalForm'
+import { GoalList } from '@/components/goals/GoalList'
+import { UpdateGoalProgressModal } from '@/components/goals/UpdateGoalProgressModal'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,89 +12,101 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { motion } from "framer-motion";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { CreateGoalData, Goal, UpdateGoalProgressData } from '@/lib/api/goals'
+import {
+  useCreateGoal,
+  useDeleteGoal,
+  useGoals,
+  useUpdateGoal,
+  useUpdateGoalProgress,
+} from '@/lib/hooks/useGoals'
+import { motion } from 'framer-motion'
+import { Plus } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export default function GoalsPage() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
-  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
-  const [progressGoal, setProgressGoal] = useState<Goal | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false)
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
+  const [progressGoal, setProgressGoal] = useState<Goal | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   // Queries & Mutations
-  const { data: goals, isLoading } = useGoals();
-  const createMutation = useCreateGoal();
-  const updateMutation = useUpdateGoal();
-  const updateProgressMutation = useUpdateGoalProgress();
-  const deleteMutation = useDeleteGoal();
+  const { data: goals, isLoading } = useGoals()
+  const createMutation = useCreateGoal()
+  const updateMutation = useUpdateGoal()
+  const updateProgressMutation = useUpdateGoalProgress()
+  const deleteMutation = useDeleteGoal()
 
   // Handlers
   const handleCreate = async (data: CreateGoalData) => {
     try {
-      await createMutation.mutateAsync(data);
-      toast.success("Goal created successfully");
-      setIsFormOpen(false);
-    } catch (error) {
-      toast.error("Failed to create goal");
+      await createMutation.mutateAsync(data)
+      toast.success('Goal created successfully')
+      setIsFormOpen(false)
+    } catch {
+      toast.error('Failed to create goal')
     }
-  };
+  }
 
   const handleUpdate = async (data: CreateGoalData) => {
-    if (!editingGoal) return;
+    if (!editingGoal) return
     try {
       await updateMutation.mutateAsync({
         id: editingGoal.id,
         data: { ...data },
-      });
-      toast.success("Goal updated successfully");
-      setIsFormOpen(false);
-      setEditingGoal(null);
-    } catch (error) {
-      toast.error("Failed to update goal");
+      })
+      toast.success('Goal updated successfully')
+      setIsFormOpen(false)
+      setEditingGoal(null)
+    } catch {
+      toast.error('Failed to update goal')
     }
-  };
+  }
 
   const handleUpdateProgress = async (data: UpdateGoalProgressData) => {
-    if (!progressGoal) return;
+    if (!progressGoal) return
     try {
       await updateProgressMutation.mutateAsync({
         id: progressGoal.id,
         data,
-      });
-      toast.success("Goal progress updated successfully");
-      setIsProgressModalOpen(false);
-      setProgressGoal(null);
-    } catch (error) {
-      toast.error("Failed to update goal progress");
+      })
+      toast.success('Goal progress updated successfully')
+      setIsProgressModalOpen(false)
+      setProgressGoal(null)
+    } catch {
+      toast.error('Failed to update goal progress')
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId) return
     try {
-      await deleteMutation.mutateAsync(deleteId);
-      toast.success("Goal deleted successfully");
-      setDeleteId(null);
-    } catch (error) {
-      toast.error("Failed to delete goal");
+      await deleteMutation.mutateAsync(deleteId)
+      toast.success('Goal deleted successfully')
+      setDeleteId(null)
+    } catch {
+      toast.error('Failed to delete goal')
     }
-  };
+  }
 
   const openCreateModal = () => {
-    setEditingGoal(null);
-    setIsFormOpen(true);
-  };
+    setEditingGoal(null)
+    setIsFormOpen(true)
+  }
 
   const openEditModal = (goal: Goal) => {
-    setEditingGoal(goal);
-    setIsFormOpen(true);
-  };
+    setEditingGoal(goal)
+    setIsFormOpen(true)
+  }
 
   const openProgressModal = (goal: Goal) => {
-    setProgressGoal(goal);
-    setIsProgressModalOpen(true);
-  };
+    setProgressGoal(goal)
+    setIsProgressModalOpen(true)
+  }
 
   return (
     <motion.div
@@ -115,7 +115,7 @@ export default function GoalsPage() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Goals</h1>
           <p className="text-muted-foreground">
@@ -139,9 +139,10 @@ export default function GoalsPage() {
       <GoalForm
         open={isFormOpen}
         onOpenChange={(open) => {
-          setIsFormOpen(open);
-          if (!open) setEditingGoal(null);
+          setIsFormOpen(open)
+          if (!open) setEditingGoal(null)
         }}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={editingGoal ? handleUpdate : handleCreate}
         initialData={editingGoal}
         isLoading={createMutation.isPending || updateMutation.isPending}
@@ -150,9 +151,10 @@ export default function GoalsPage() {
       <UpdateGoalProgressModal
         open={isProgressModalOpen}
         onOpenChange={(open) => {
-          setIsProgressModalOpen(open);
-          if (!open) setProgressGoal(null);
+          setIsProgressModalOpen(open)
+          if (!open) setProgressGoal(null)
         }}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleUpdateProgress}
         goal={progressGoal}
         isLoading={updateProgressMutation.isPending}
@@ -173,6 +175,7 @@ export default function GoalsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -182,5 +185,5 @@ export default function GoalsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
-  );
+  )
 }

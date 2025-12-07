@@ -1,127 +1,127 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { slideInFromRight } from "@/lib/utils/animations";
-import { Lock, Mail, Eye, EyeOff, Loader2 } from "lucide-react";
-import Link from "next/link";
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { useAuth } from '@/lib/hooks/useAuth'
+import { slideInFromRight } from '@/lib/utils/animations'
+import { motion } from 'framer-motion'
+import { Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
-  const { login, isLoading, error, refreshAccessToken } = useAuth();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null)
+  const { login, isLoading, error, refreshAccessToken } = useAuth()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await login({ email, password });
-    } catch (err) {
-      console.error("Login error:", err);
-    }
-  };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    void (async () => {
+      try {
+        await login({ email, password })
+      } catch (err) {
+        console.error('Login error:', err)
+      }
+    })()
+  }
 
-  const openOAuthPopup = (provider: "google" | "github") => {
-    setOauthLoading(provider);
+  const openOAuthPopup = (provider: 'google' | 'github') => {
+    setOauthLoading(provider)
 
-    const width = 700;
-    const height = 800;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
+    const width = 700
+    const height = 800
+    const left = window.screen.width / 2 - width / 2
+    const top = window.screen.height / 2 - height / 2
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
-      }/auth/${provider}`;
+    const url = `${
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+    }/auth/${provider}`
 
     const popup = window.open(
       url,
-      "OAuth",
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
+      'OAuth',
+      `width=${width},height=${height},left=${left},top=${top}`,
+    )
 
-    console.log("OAuth popup opened", popup);
+    // console.log('OAuth popup opened', popup)
 
     // --- Listen for success from popup ---
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "OAUTH_SUCCESS") {
-        console.log("OAuth success message received");
-        setOauthLoading(null);
-        popup?.close();
-        window.removeEventListener("message", handleMessage);
+      if (event.data?.type === 'OAUTH_SUCCESS') {
+        // console.log('OAuth success message received')
+        setOauthLoading(null)
+        popup?.close()
+        window.removeEventListener('message', handleMessage)
       }
-    };
+    }
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage)
 
     // --- Fallback: detect if user manually closes the popup ---
     // We removed the polling check because it was unreliable with cross-origin redirects.
     // Instead, we provide a manual "Cancel" button in the UI.
-  };
+  }
 
   useEffect(() => {
     const handleSuccess = async () => {
       try {
-        await refreshAccessToken();
-        window.location.href = "/dashboard";
+        await refreshAccessToken()
+        window.location.href = '/dashboard'
       } catch (err) {
-        console.error(
-          "OAuth success received but session refresh failed:",
-          err
-        );
+        console.error('OAuth success received but session refresh failed:', err)
       }
-    };
+    }
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data.type === "OAUTH_SUCCESS") {
-        handleSuccess();
+      if (event.origin !== window.location.origin) return
+      if (event.data.type === 'OAUTH_SUCCESS') {
+        handleSuccess()
       }
-    };
+    }
 
     // Listen to window messages (legacy/backup)
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage)
 
     // Listen to BroadcastChannel (robust)
-    const channel = new BroadcastChannel("auth_channel");
+    const channel = new BroadcastChannel('auth_channel')
     channel.onmessage = (event) => {
-      if (event.data.type === "OAUTH_SUCCESS") {
-        handleSuccess();
+      if (event.data.type === 'OAUTH_SUCCESS') {
+        handleSuccess()
       }
-    };
+    }
 
     return () => {
-      window.removeEventListener("message", handleMessage);
-      channel.close();
-    };
-  }, [refreshAccessToken]);
+      window.removeEventListener('message', handleMessage)
+      channel.close()
+    }
+  }, [refreshAccessToken])
 
   return (
     <motion.div
       variants={slideInFromRight}
       initial="initial"
       animate="animate"
-      className="w-full max-w-md mx-auto"
+      className="mx-auto w-full max-w-md"
     >
-      <Card className="backdrop-blur-xl bg-card/80 border-border/50 shadow-2xl">
+      <Card className="bg-card/80 border-border/50 shadow-2xl backdrop-blur-xl">
         <CardHeader className="space-y-1 text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            className="mx-auto mb-4 rounded-full bg-primary/10 p-3 w-fit"
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            className="bg-primary/10 mx-auto mb-4 w-fit rounded-full p-3"
           >
-            <Lock className="h-6 w-6 text-primary" />
+            <Lock className="text-primary h-6 w-6" />
           </motion.div>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <CardDescription>Sign in to your account to continue</CardDescription>
@@ -132,7 +132,7 @@ export function LoginForm() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 text-sm text-destructive bg-destructive/10 rounded-md border border-destructive/20"
+                className="text-destructive bg-destructive/10 border-destructive/20 rounded-md border p-3 text-sm"
               >
                 {error}
               </motion.div>
@@ -140,7 +140,7 @@ export function LoginForm() {
             <div className="space-y-2">
               <label
                 htmlFor="email"
-                className="text-sm font-medium flex items-center gap-2"
+                className="flex items-center gap-2 text-sm font-medium"
               >
                 <Mail className="h-4 w-4" />
                 Email
@@ -159,7 +159,7 @@ export function LoginForm() {
             <div className="space-y-2">
               <label
                 htmlFor="password"
-                className="text-sm font-medium flex items-center gap-2"
+                className="flex items-center gap-2 text-sm font-medium"
               >
                 <Lock className="h-4 w-4" />
                 Password
@@ -167,7 +167,7 @@ export function LoginForm() {
               <div className="relative">
                 <Input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -178,7 +178,7 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4" />
@@ -189,18 +189,18 @@ export function LoginForm() {
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-border"
+                  className="border-border rounded"
                 />
                 <span>Remember me</span>
               </label>
               <Link
                 href="/forgot-password"
-                className="text-sm text-primary hover:underline"
+                className="text-primary text-sm hover:underline"
               >
                 Forgot password?
               </Link>
@@ -210,15 +210,15 @@ export function LoginForm() {
               className="w-full"
               disabled={isLoading || !!oauthLoading}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border"></span>
+                <span className="border-border w-full border-t"></span>
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">
+                <span className="bg-card text-muted-foreground px-2">
                   Or continue with
                 </span>
               </div>
@@ -229,10 +229,10 @@ export function LoginForm() {
                 variant="outline"
                 type="button"
                 disabled={isLoading || !!oauthLoading}
-                onClick={() => openOAuthPopup("google")}
+                onClick={() => openOAuthPopup('google')}
                 className="cursor-pointer"
               >
-                {oauthLoading === "google" ? (
+                {oauthLoading === 'google' ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -260,10 +260,10 @@ export function LoginForm() {
                 variant="outline"
                 type="button"
                 disabled={isLoading || !!oauthLoading}
-                onClick={() => openOAuthPopup("github")}
+                onClick={() => openOAuthPopup('github')}
                 className="cursor-pointer"
               >
-                {oauthLoading === "github" ? (
+                {oauthLoading === 'github' ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <svg
@@ -279,22 +279,22 @@ export function LoginForm() {
             </div>
 
             {!!oauthLoading && (
-              <div className="text-center mt-2">
+              <div className="mt-2 text-center">
                 <button
                   type="button"
                   onClick={() => setOauthLoading(null)}
-                  className="text-xs text-muted-foreground hover:text-primary underline"
+                  className="text-muted-foreground hover:text-primary text-xs underline"
                 >
                   Cancel connection
                 </button>
               </div>
             )}
 
-            <div className="text-center text-sm text-muted-foreground pt-4">
-              Don&apos;t have an account?{" "}
+            <div className="text-muted-foreground pt-4 text-center text-sm">
+              Don&apos;t have an account?{' '}
               <Link
                 href="/register"
-                className="text-primary hover:underline font-medium"
+                className="text-primary font-medium hover:underline"
               >
                 Sign up
               </Link>
@@ -303,5 +303,5 @@ export function LoginForm() {
         </CardContent>
       </Card>
     </motion.div>
-  );
+  )
 }
