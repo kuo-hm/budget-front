@@ -1,18 +1,8 @@
-"use client";
+'use client'
 
-import { useInvestments, useDeleteInvestment } from "@/lib/hooks/useInvestments";
-import { formatCurrency } from "@/lib/utils";
-import { format } from "date-fns";
-import { Loader2, Trash2, Edit } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useDeleteInvestment, useInvestments } from '@/lib/hooks/useInvestments'
+import { formatCurrency } from '@/lib/utils'
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,34 +13,45 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { Edit, Loader2, Trash2 } from 'lucide-react'
 
 interface InvestmentListProps {
-  onEdit: (id: string) => void;
+  onEdit: (id: string) => void
 }
 
 export function InvestmentList({ onEdit }: InvestmentListProps) {
-  const { data: investments, isLoading } = useInvestments();
-  const { mutate: deleteInvestment, isPending: isDeleting } = useDeleteInvestment();
+  const { data: investments, isLoading } = useInvestments()
+  const { mutate: deleteInvestment, isPending: isDeleting } =
+    useDeleteInvestment()
 
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
       </div>
-    );
+    )
   }
 
   if (!investments || investments.length === 0) {
     return (
-      <div className="text-center py-12 border-2 border-dashed rounded-lg">
+      <div className="rounded-lg border-2 border-dashed py-12 text-center">
         <h3 className="text-lg font-semibold">No investments yet</h3>
         <p className="text-muted-foreground">
           Start building your portfolio by adding your first asset.
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -69,41 +70,64 @@ export function InvestmentList({ onEdit }: InvestmentListProps) {
         </TableHeader>
         <TableBody>
           {investments.map((investment) => {
-            const currentValue = investment.currentValue || (investment.quantity * investment.purchasePrice);
-            const gainLoss = investment.gainLoss || 0;
-            const gainLossPercent = investment.gainLossPercent || 0;
-            const isPositive = gainLoss >= 0;
+            const currentValue =
+              investment.currentValue ||
+              investment.quantity * investment.purchasePrice
+            const gainLoss = investment.gainLoss || 0
+            const gainLossPercent = investment.gainLossPercent || 0
+            const isPositive = gainLoss >= 0
 
             return (
               <TableRow key={investment.id}>
                 <TableCell>
                   <div className="font-medium">{investment.name}</div>
-                  <div className="text-xs text-muted-foreground">{investment.symbol}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {investment.symbol}
+                  </div>
                 </TableCell>
                 <TableCell className="capitalize">{investment.type}</TableCell>
                 <TableCell className="text-right">
                   {investment.quantity.toLocaleString()}
                 </TableCell>
                 <TableCell className="text-right">
-                  {formatCurrency(investment.currentPrice || investment.purchasePrice)}
+                  {formatCurrency(
+                    investment.currentPrice || investment.purchasePrice,
+                  )}
                 </TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCurrency(currentValue)}
                 </TableCell>
-                <TableCell className={cn("text-right", isPositive ? "text-green-600" : "text-red-600")}>
-                  <div>{isPositive ? "+" : ""}{formatCurrency(gainLoss)}</div>
+                <TableCell
+                  className={cn(
+                    'text-right',
+                    isPositive ? 'text-green-600' : 'text-red-600',
+                  )}
+                >
+                  <div>
+                    {isPositive ? '+' : ''}
+                    {formatCurrency(gainLoss)}
+                  </div>
                   <div className="text-xs">
-                    {isPositive ? "+" : ""}{gainLossPercent.toFixed(2)}%
+                    {isPositive ? '+' : ''}
+                    {gainLossPercent.toFixed(2)}%
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => onEdit(investment.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(investment.id)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
@@ -116,7 +140,7 @@ export function InvestmentList({ onEdit }: InvestmentListProps) {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction 
+                          <AlertDialogAction
                             onClick={() => deleteInvestment(investment.id)}
                             disabled={isDeleting}
                           >
@@ -128,10 +152,10 @@ export function InvestmentList({ onEdit }: InvestmentListProps) {
                   </div>
                 </TableCell>
               </TableRow>
-            );
+            )
           })}
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

@@ -1,139 +1,139 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { isAxiosError } from "axios";
-import { Sidebar } from "@/components/dashboard/Sidebar";
-import { Header } from "@/components/dashboard/Header";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { usePathname } from "next/navigation";
-import { TransactionForm } from "@/components/transactions/TransactionForm";
-import { RecurringTransactionForm } from "@/components/recurring/RecurringTransactionForm";
-import { BudgetForm } from "@/components/budgets/BudgetForm";
-import { GoalForm } from "@/components/goals/GoalForm";
-import { CategoryForm } from "@/components/categories/CategoryForm";
-import { useCreateTransaction } from "@/lib/hooks/useTransactions";
-import { useCreateBudget } from "@/lib/hooks/useBudgets";
-import { useCreateGoal } from "@/lib/hooks/useGoals";
-import { useCreateCategory } from "@/lib/hooks/useCategories";
-import { useCreateRecurringTransaction } from "@/lib/hooks/useRecurringTransactions";
-import { toast } from "sonner";
-import { CreateTransactionData } from "@/lib/api/transactions";
-import { CreateBudgetData } from "@/lib/api/budgets";
-import { CreateGoalData } from "@/lib/api/goals";
-import { CreateCategoryData } from "@/lib/api/categories";
-import { CreateRecurringTransactionData } from "@/lib/api/recurring-transactions";
+import { BudgetForm } from '@/components/budgets/BudgetForm'
+import { CategoryForm } from '@/components/categories/CategoryForm'
+import { Header } from '@/components/dashboard/Header'
+import { Sidebar } from '@/components/dashboard/Sidebar'
+import { GoalForm } from '@/components/goals/GoalForm'
+import { RecurringTransactionForm } from '@/components/recurring/RecurringTransactionForm'
+import { TransactionForm } from '@/components/transactions/TransactionForm'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { CreateBudgetData } from '@/lib/api/budgets'
+import { CreateCategoryData } from '@/lib/api/categories'
+import { CreateGoalData } from '@/lib/api/goals'
+import { CreateRecurringTransactionData } from '@/lib/api/recurring-transactions'
+import { CreateTransactionData } from '@/lib/api/transactions'
+import { useCreateBudget } from '@/lib/hooks/useBudgets'
+import { useCreateCategory } from '@/lib/hooks/useCategories'
+import { useCreateGoal } from '@/lib/hooks/useGoals'
+import { useCreateRecurringTransaction } from '@/lib/hooks/useRecurringTransactions'
+import { useCreateTransaction } from '@/lib/hooks/useTransactions'
+import { isAxiosError } from 'axios'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   // Global Modal States
-  const [isTransactionOpen, setIsTransactionOpen] = useState(false);
-  const [isBudgetOpen, setIsBudgetOpen] = useState(false);
-  const [isGoalOpen, setIsGoalOpen] = useState(false);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isTransactionOpen, setIsTransactionOpen] = useState(false)
+  const [isBudgetOpen, setIsBudgetOpen] = useState(false)
+  const [isGoalOpen, setIsGoalOpen] = useState(false)
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false)
   const [isRecurringTransactionOpen, setIsRecurringTransactionOpen] =
-    useState(false);
+    useState(false)
 
   // Mutations
-  const createTransactionMutation = useCreateTransaction();
-  const createBudgetMutation = useCreateBudget();
-  const createGoalMutation = useCreateGoal();
-  const createCategoryMutation = useCreateCategory();
-  const createRecurringTransactionMutation = useCreateRecurringTransaction();
+  const createTransactionMutation = useCreateTransaction()
+  const createBudgetMutation = useCreateBudget()
+  const createGoalMutation = useCreateGoal()
+  const createCategoryMutation = useCreateCategory()
+  const createRecurringTransactionMutation = useCreateRecurringTransaction()
 
   // Close mobile menu on route change
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+    setIsMobileMenuOpen(false)
+  }, [pathname])
 
   const getPageTitle = (path: string) => {
-    if (path.includes("/dashboard")) return "Overview";
-    if (path.includes("/transactions")) return "Transactions";
-    if (path.includes("/budgets")) return "Budgets";
-    if (path.includes("/goals")) return "Goals";
-    if (path.includes("/analytics")) return "Analytics";
-    return "Dashboard";
-  };
+    if (path.includes('/dashboard')) return 'Overview'
+    if (path.includes('/transactions')) return 'Transactions'
+    if (path.includes('/budgets')) return 'Budgets'
+    if (path.includes('/goals')) return 'Goals'
+    if (path.includes('/analytics')) return 'Analytics'
+    return 'Dashboard'
+  }
 
   // Handlers
   const handleCreateTransaction = async (data: CreateTransactionData) => {
     try {
-      await createTransactionMutation.mutateAsync(data);
-      toast.success("Transaction created successfully");
-      setIsTransactionOpen(false);
-    } catch (error) {
-      toast.error("Failed to create transaction");
+      await createTransactionMutation.mutateAsync(data)
+      toast.success('Transaction created successfully')
+      setIsTransactionOpen(false)
+    } catch {
+      toast.error('Failed to create transaction')
     }
-  };
+  }
 
   const handleCreateRecurringTransaction = async (
-    data: CreateRecurringTransactionData
+    data: CreateRecurringTransactionData,
   ) => {
     try {
-      await createRecurringTransactionMutation.mutateAsync(data);
-      toast.success("Recurring transaction scheduled successfully");
-      setIsRecurringTransactionOpen(false);
-    } catch (error) {
-      toast.error("Failed to create recurring transaction");
+      await createRecurringTransactionMutation.mutateAsync(data)
+      toast.success('Recurring transaction scheduled successfully')
+      setIsRecurringTransactionOpen(false)
+    } catch {
+      toast.error('Failed to create recurring transaction')
     }
-  };
+  }
 
   const handleCreateBudget = async (data: CreateBudgetData) => {
     try {
-      await createBudgetMutation.mutateAsync(data);
-      toast.success("Budget created successfully");
-      setIsBudgetOpen(false);
-    } catch (error) {
-      toast.error("Failed to create budget");
+      await createBudgetMutation.mutateAsync(data)
+      toast.success('Budget created successfully')
+      setIsBudgetOpen(false)
+    } catch {
+      toast.error('Failed to create budget')
     }
-  };
+  }
 
   const handleCreateGoal = async (data: CreateGoalData) => {
     try {
-      await createGoalMutation.mutateAsync(data);
-      toast.success("Goal created successfully");
-      setIsGoalOpen(false);
-    } catch (error) {
-      toast.error("Failed to create goal");
+      await createGoalMutation.mutateAsync(data)
+      toast.success('Goal created successfully')
+      setIsGoalOpen(false)
+    } catch {
+      toast.error('Failed to create goal')
     }
-  };
+  }
 
   const handleCreateCategory = async (data: CreateCategoryData) => {
     try {
-      await createCategoryMutation.mutateAsync(data);
-      toast.success("Category created successfully");
-      setIsCategoryOpen(false);
+      await createCategoryMutation.mutateAsync(data)
+      toast.success('Category created successfully')
+      setIsCategoryOpen(false)
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 409) {
-        toast.error("Category already exists");
+        toast.error('Category already exists')
       } else {
-        toast.error("Failed to create category");
+        toast.error('Failed to create category')
       }
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="bg-background flex min-h-screen">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:block w-64 fixed inset-y-0 z-40">
+      <aside className="fixed inset-y-0 z-40 hidden w-64 md:block">
         <Sidebar />
       </aside>
 
       {/* Mobile Sidebar (Sheet) */}
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-64">
+        <SheetContent side="left" className="w-64 p-0">
           <Sidebar />
         </SheetContent>
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col md:pl-64 min-h-screen transition-all duration-300 ease-in-out">
+      <div className="flex min-h-screen flex-1 flex-col transition-all duration-300 ease-in-out md:pl-64">
         <Header
           onMenuClick={() => setIsMobileMenuOpen(true)}
           title={getPageTitle(pathname)}
@@ -145,10 +145,10 @@ export default function DashboardLayout({
         />
         <main
           id="main-content"
-          className="flex-1 p-4 md:p-6 overflow-x-hidden"
+          className="flex-1 overflow-x-hidden p-4 md:p-6"
           tabIndex={-1}
         >
-          <div className="max-w-7xl mx-auto w-full">{children}</div>
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>
 
@@ -165,27 +165,31 @@ export default function DashboardLayout({
       <RecurringTransactionForm
         open={isRecurringTransactionOpen}
         onOpenChange={setIsRecurringTransactionOpen}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleCreateRecurringTransaction}
         isLoading={createRecurringTransactionMutation.isPending}
       />
       <BudgetForm
         open={isBudgetOpen}
         onOpenChange={setIsBudgetOpen}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleCreateBudget}
         isLoading={createBudgetMutation.isPending}
       />
       <GoalForm
         open={isGoalOpen}
         onOpenChange={setIsGoalOpen}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleCreateGoal}
         isLoading={createGoalMutation.isPending}
       />
       <CategoryForm
         open={isCategoryOpen}
         onOpenChange={setIsCategoryOpen}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleCreateCategory}
         isLoading={createCategoryMutation.isPending}
       />
     </div>
-  );
+  )
 }

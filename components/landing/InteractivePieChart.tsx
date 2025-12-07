@@ -1,19 +1,21 @@
-"use client";
+'use client'
 
-import { useRef, useState, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, Html, Center, Float } from "@react-three/drei";
-import { motion } from "framer-motion";
-import { fadeIn } from "@/lib/utils/animations";
-import * as THREE from "three";
+import { fadeIn } from '@/lib/utils/animations'
+import { Center, Float, Html, PerspectiveCamera } from '@react-three/drei'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { motion } from 'framer-motion'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import * as THREE from 'three'
 
 const data = [
-  { name: "Housing", value: 35, color: "#8b5cf6" }, // Violet
-  { name: "Food", value: 25, color: "#3b82f6" }, // Blue
-  { name: "Transport", value: 20, color: "#10b981" }, // Emerald
-  { name: "Entertainment", value: 15, color: "#f59e0b" }, // Amber
-  { name: "Savings", value: 5, color: "#ef4444" }, // Red
-];
+  { name: 'Housing', value: 35, color: '#8b5cf6' }, // Violet
+  { name: 'Food', value: 25, color: '#3b82f6' }, // Blue
+  { name: 'Transport', value: 20, color: '#10b981' }, // Emerald
+  { name: 'Entertainment', value: 15, color: '#f59e0b' }, // Amber
+  { name: 'Savings', value: 5, color: '#ef4444' }, // Red
+]
 
 function PieSlice({
   startAngle,
@@ -27,27 +29,27 @@ function PieSlice({
   onHover,
   onOut,
 }: {
-  startAngle: number;
-  endAngle: number;
-  color: string;
-  radius?: number;
-  depth?: number;
-  label: string;
-  value: number;
-  isSelected: boolean;
-  onHover: () => void;
-  onOut: () => void;
+  startAngle: number
+  endAngle: number
+  color: string
+  radius?: number
+  depth?: number
+  label: string
+  value: number
+  isSelected: boolean
+  onHover: () => void
+  onOut: () => void
 }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
+  const meshRef = useRef<THREE.Mesh>(null)
+  const [hovered, setHovered] = useState(false)
 
   const shape = useMemo(() => {
-    const shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    shape.arc(0, 0, radius, startAngle, endAngle, false);
-    shape.lineTo(0, 0);
-    return shape;
-  }, [startAngle, endAngle, radius]);
+    const shape = new THREE.Shape()
+    shape.moveTo(0, 0)
+    shape.arc(0, 0, radius, startAngle, endAngle, false)
+    shape.lineTo(0, 0)
+    return shape
+  }, [startAngle, endAngle, radius])
 
   const extrudeSettings = useMemo(
     () => ({
@@ -57,44 +59,44 @@ function PieSlice({
       bevelSize: 0.05,
       bevelSegments: 10,
     }),
-    [depth]
-  );
+    [depth],
+  )
 
   // Calculate center of the slice for label positioning and movement
-  const midAngle = (startAngle + endAngle) / 2;
-  const x = Math.cos(midAngle);
-  const y = Math.sin(midAngle);
+  const midAngle = (startAngle + endAngle) / 2
+  const x = Math.cos(midAngle)
+  const y = Math.sin(midAngle)
 
   // Animation for hover/selection
   useFrame((state, delta) => {
     if (meshRef.current) {
-      const targetScale = hovered || isSelected ? 1.1 : 1;
-      const targetX = hovered || isSelected ? x * 0.2 : 0;
-      const targetY = hovered || isSelected ? y * 0.2 : 0;
+      const targetScale = hovered || isSelected ? 1.1 : 1
+      const targetX = hovered || isSelected ? x * 0.2 : 0
+      const targetY = hovered || isSelected ? y * 0.2 : 0
 
       meshRef.current.scale.lerp(
         new THREE.Vector3(targetScale, targetScale, 1),
-        delta * 10
-      );
+        delta * 10,
+      )
       meshRef.current.position.lerp(
         new THREE.Vector3(targetX, targetY, 0),
-        delta * 10
-      );
+        delta * 10,
+      )
     }
-  });
+  })
 
   return (
     <group>
       <mesh
         ref={meshRef}
         onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-          onHover();
+          e.stopPropagation()
+          setHovered(true)
+          onHover()
         }}
-        onPointerOut={(e) => {
-          setHovered(false);
-          onOut();
+        onPointerOut={() => {
+          setHovered(false)
+          onOut()
         }}
       >
         <extrudeGeometry args={[shape, extrudeSettings]} />
@@ -110,59 +112,100 @@ function PieSlice({
         <Html
           position={[x * radius * 0.8, y * radius * 0.8, depth + 0.5]}
           center
-          style={{ pointerEvents: "none" }}
+          style={{ pointerEvents: 'none' }}
         >
-          <div className="bg-background/90 backdrop-blur-md border border-border p-2 rounded-lg shadow-xl text-xs whitespace-nowrap pointer-events-none">
-            <div className="font-bold text-foreground">{label}</div>
+          <div className="bg-background/90 border-border pointer-events-none rounded-lg border p-2 text-xs whitespace-nowrap shadow-xl backdrop-blur-md">
+            <div className="text-foreground font-bold">{label}</div>
             <div className="text-muted-foreground">{value}%</div>
           </div>
         </Html>
       )}
     </group>
-  );
+  )
 }
 
 function PieChart3D() {
-  const groupRef = useRef<THREE.Group>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const groupRef = useRef<THREE.Group>(null)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const slices = useMemo(() => {
-    const total = data.reduce((acc, item) => acc + item.value, 0);
+    const total = data.reduce((acc, item) => acc + item.value, 0)
 
     return data.reduce(
       (acc, item) => {
-        const angle = (item.value / total) * Math.PI * 2;
-        const startAngle = acc.currentAngle;
-        const endAngle = acc.currentAngle + angle;
+        const angle = (item.value / total) * Math.PI * 2
+        const startAngle = acc.currentAngle
+        const endAngle = acc.currentAngle + angle
 
         acc.items.push({
           ...item,
           startAngle,
           endAngle,
-        });
-        acc.currentAngle += angle;
-        return acc;
+        })
+        acc.currentAngle += angle
+        return acc
       },
       {
         items: [] as ((typeof data)[0] & {
-          startAngle: number;
-          endAngle: number;
+          startAngle: number
+          endAngle: number
         })[],
         currentAngle: 0,
-      }
-    ).items;
-  }, []);
+      },
+    ).items
+  }, [])
 
-  useFrame((state, delta) => {
+  /* Removed conflicting useFrame scale animation to let GSAP control it */
+  /* useFrame((state, delta) => {
     if (groupRef.current) {
-      // Smooth entry animation
       groupRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), delta * 2);
     }
-  });
+  }); */
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger)
+    }
+
+    const ctx = gsap.context(() => {
+      if (groupRef.current) {
+        // Reset scale initially
+        groupRef.current.scale.set(0, 0, 0)
+
+        gsap.to(groupRef.current.scale, {
+          x: 1,
+          y: 1,
+          z: 1,
+          duration: 1.5,
+          ease: 'back.out(1.2)', // Add a nice bounce
+          scrollTrigger: {
+            trigger: '#demo', // Target the section ID
+            start: 'top 70%',
+            end: 'center center',
+            scrub: 1,
+          },
+        })
+
+        gsap.from(groupRef.current.rotation, {
+          y: Math.PI * 2,
+          duration: 1.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#demo',
+            start: 'top 70%',
+            end: 'center center',
+            scrub: 1,
+          },
+        })
+      }
+    })
+
+    return () => ctx.revert()
+  }, [])
 
   return (
     <group ref={groupRef} scale={[0, 0, 0]} rotation={[0.5, 0, 0]}>
-      {" "}
+      {' '}
       {/* Tilt the chart slightly */}
       <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
         <Center>
@@ -182,17 +225,17 @@ function PieChart3D() {
         </Center>
       </Float>
     </group>
-  );
+  )
 }
 
 export function InteractivePieChart() {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null)
 
   return (
     <section
       ref={sectionRef}
       id="demo"
-      className="py-20 px-4 relative overflow-hidden"
+      className="relative overflow-hidden px-4 py-20"
     >
       <div className="container mx-auto max-w-6xl">
         <motion.div
@@ -200,19 +243,19 @@ export function InteractivePieChart() {
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="mb-12 text-center"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="mb-4 text-4xl font-bold md:text-5xl">
             Visualize Your
             <span className="text-primary"> Spending Patterns</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
             Interactive 3D charts help you understand where your money goes
           </p>
         </motion.div>
 
         <motion.div
-          className="relative w-full h-[500px] max-w-4xl mx-auto cursor-pointer"
+          className="relative mx-auto h-[500px] w-full max-w-4xl cursor-pointer"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
@@ -237,14 +280,14 @@ export function InteractivePieChart() {
           </Canvas>
 
           {/* Legend */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-4 bg-background/50 backdrop-blur-sm p-4 rounded-xl border border-border/50">
+          <div className="bg-background/50 border-border/50 absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap justify-center gap-4 rounded-xl border p-4 backdrop-blur-sm">
             {data.map((item) => (
               <div key={item.name} className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full"
+                  className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: item.color }}
                 />
-                <span className="text-sm font-medium text-muted-foreground">
+                <span className="text-muted-foreground text-sm font-medium">
                   {item.name}
                 </span>
               </div>
@@ -253,5 +296,5 @@ export function InteractivePieChart() {
         </motion.div>
       </div>
     </section>
-  );
+  )
 }

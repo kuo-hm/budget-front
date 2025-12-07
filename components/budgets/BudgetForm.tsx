@@ -1,10 +1,7 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { CategorySelect } from '@/components/categories/CategorySelect'
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -12,48 +9,51 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Budget, CreateBudgetData, Frequency } from "@/lib/api/budgets";
-import { CategorySelect } from "@/components/categories/CategorySelect";
+} from '@/components/ui/select'
+import { Budget, CreateBudgetData, Frequency } from '@/lib/api/budgets'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
+import * as z from 'zod'
 
 const budgetSchema = z
   .object({
-    limitAmount: z.coerce.number().min(0.01, "Limit must be greater than 0"),
-    categoryId: z.string().min(1, "Category is required"),
-    startDate: z.string().min(1, "Start date is required"),
+    limitAmount: z.coerce.number().min(0.01, 'Limit must be greater than 0'),
+    categoryId: z.string().min(1, 'Category is required'),
+    startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().optional(),
     frequency: z.nativeEnum(Frequency).optional(),
   })
   .refine(
     (data) => {
       if (!data.frequency) {
-        return !!data.endDate && data.endDate.length > 0;
+        return !!data.endDate && data.endDate.length > 0
       }
-      return true;
+      return true
     },
     {
-      message: "End date is required for one-time budgets",
-      path: ["endDate"],
-    }
-  );
+      message: 'End date is required for one-time budgets',
+      path: ['endDate'],
+    },
+  )
 
-type BudgetFormValues = z.infer<typeof budgetSchema>;
+type BudgetFormValues = z.infer<typeof budgetSchema>
 
 interface BudgetFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateBudgetData) => void;
-  initialData?: Budget | null;
-  isLoading?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CreateBudgetData) => void
+  initialData?: Budget | null
+  isLoading?: boolean
 }
 
 export function BudgetForm({
@@ -68,14 +68,14 @@ export function BudgetForm({
     resolver: zodResolver(budgetSchema) as any,
     defaultValues: {
       limitAmount: 0,
-      categoryId: "",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: "",
+      categoryId: '',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: '',
       frequency: undefined,
     },
-  });
+  })
 
-  const frequency = form.watch("frequency");
+  const frequency = useWatch({ control: form.control, name: 'frequency' })
 
   useEffect(() => {
     if (open) {
@@ -83,46 +83,49 @@ export function BudgetForm({
         form.reset({
           limitAmount: initialData.limitAmount,
           categoryId: initialData.categoryId,
-          startDate: initialData.startDate.split("T")[0],
-          endDate: initialData.endDate ? initialData.endDate.split("T")[0] : "",
+          startDate: initialData.startDate.split('T')[0],
+          endDate: initialData.endDate ? initialData.endDate.split('T')[0] : '',
           frequency: initialData.frequency || undefined,
-        });
+        })
       } else {
         // Set default start date to first day of current month and end date to last day
-        const date = new Date();
-        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+        const date = new Date()
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
+        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
 
         form.reset({
           limitAmount: 0,
-          categoryId: "",
-          startDate: firstDay.toISOString().split("T")[0],
-          endDate: lastDay.toISOString().split("T")[0],
+          categoryId: '',
+          startDate: firstDay.toISOString().split('T')[0],
+          endDate: lastDay.toISOString().split('T')[0],
           frequency: undefined,
-        });
+        })
       }
     }
-  }, [open, initialData, form]);
+  }, [open, initialData, form])
 
   const handleSubmit = (values: BudgetFormValues) => {
     // If frequency is set, endDate is optional, but API might expect it to be undefined or null if not provided
     // Our DTO says optional string.
-    onSubmit(values);
-  };
+    onSubmit(values)
+  }
 
   return (
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={initialData ? "Edit Budget" : "Create Budget"}
+      title={initialData ? 'Edit Budget' : 'Create Budget'}
       description={
         initialData
-          ? "Update your spending limit for this category."
-          : "Set a spending limit for a specific category to track your expenses."
+          ? 'Update your spending limit for this category.'
+          : 'Set a spending limit for a specific category to track your expenses.'
       }
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => void form.handleSubmit(handleSubmit)(e)}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="categoryId"
@@ -130,7 +133,7 @@ export function BudgetForm({
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <CategorySelect
-                  value={field.value || ""}
+                  value={field.value || ''}
                   onChange={field.onChange}
                   placeholder="Select category"
                   type="EXPENSE"
@@ -167,9 +170,9 @@ export function BudgetForm({
                 <FormLabel>Frequency (Optional)</FormLabel>
                 <Select
                   onValueChange={(value) => {
-                    field.onChange(value === "NONE" ? undefined : value);
+                    field.onChange(value === 'NONE' ? undefined : value)
                   }}
-                  value={field.value || "NONE"}
+                  value={field.value || 'NONE'}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -210,7 +213,7 @@ export function BudgetForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    End Date {frequency ? "(Optional)" : ""}
+                    End Date {frequency ? '(Optional)' : ''}
                   </FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
@@ -230,11 +233,11 @@ export function BudgetForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : initialData ? "Update" : "Create"}
+              {isLoading ? 'Saving...' : initialData ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>
       </Form>
     </ResponsiveDialog>
-  );
+  )
 }

@@ -59,7 +59,7 @@ Phase 4: Landing Page ✅ [COMPLETED]
 - [x] Build 3D interactive pie chart section
 - [x] Create features section with Framer Motion cards
 - [x] Build analytics preview section
-- [ ] Add testimonials carousel (optional - skipped)
+- [x] Add testimonials carousel (optional)
 - [x] Create pricing section
 - [x] Build footer with newsletter signup
 
@@ -95,8 +95,8 @@ Phase 7: Transactions Module 🚧 [PARTIAL]
 - [x] Add transaction summary cards (Income/Expense/Savings)
 - [x] Add animations (fade in, stagger, modal transitions)
 - [ ] **Receipt Management:**
-  - [ ] Implement Receipt Upload (API & UI)
-  - [ ] Implement Receipt Viewing/Deletion
+  - [/] Implement Receipt Upload (UI Done, API Mocked)
+  - [/] Implement Receipt Viewing/Deletion (UI Done, API Mocked)
 
 Phase 8: Recurring Transactions Module ✅ [DONE]
 
@@ -160,7 +160,7 @@ Phase 12: User Profile & Settings ✅ [COMPLETED]
 Phase 13: Advanced Animations & Interactions 🚧 [PARTIAL]
 
 - [x] Add Lenis smooth scrolling
-- [ ] Implement GSAP ScrollTrigger animations
+- [x] Implement GSAP ScrollTrigger animations
 - [x] Create page transition animations
 - [x] Add hover effects and micro-interactions
 - [x] Optimize animation performance (60fps)

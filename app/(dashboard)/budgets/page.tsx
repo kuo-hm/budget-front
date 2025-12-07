@@ -1,18 +1,7 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Plus, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { BudgetList } from "@/components/budgets/BudgetList";
-import { BudgetForm } from "@/components/budgets/BudgetForm";
-import {
-  useBudgets,
-  useCreateBudget,
-  useUpdateBudget,
-  useDeleteBudget,
-} from "@/lib/hooks/useBudgets";
-import { Budget, CreateBudgetData } from "@/lib/api/budgets";
-import { toast } from "sonner";
+import { BudgetForm } from '@/components/budgets/BudgetForm'
+import { BudgetList } from '@/components/budgets/BudgetList'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,83 +11,94 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { motion } from "framer-motion";
-import { exportToCSV } from "@/lib/utils/export";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Budget, CreateBudgetData } from '@/lib/api/budgets'
+import {
+  useBudgets,
+  useCreateBudget,
+  useDeleteBudget,
+  useUpdateBudget,
+} from '@/lib/hooks/useBudgets'
+import { exportToCSV } from '@/lib/utils/export'
+import { motion } from 'framer-motion'
+import { Download, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export default function BudgetsPage() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingBudget, setEditingBudget] = useState<Budget | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   // Queries & Mutations
-  const { data: budgets, isLoading } = useBudgets();
-  const createMutation = useCreateBudget();
-  const updateMutation = useUpdateBudget();
-  const deleteMutation = useDeleteBudget();
+  const { data: budgets, isLoading } = useBudgets()
+  const createMutation = useCreateBudget()
+  const updateMutation = useUpdateBudget()
+  const deleteMutation = useDeleteBudget()
 
   // Handlers
   const handleCreate = async (data: CreateBudgetData) => {
     try {
-      await createMutation.mutateAsync(data);
-      toast.success("Budget created successfully");
-      setIsFormOpen(false);
+      await createMutation.mutateAsync(data)
+      toast.success('Budget created successfully')
+      setIsFormOpen(false)
     } catch (error) {
       if (error instanceof Error) {
-        toast.error(error.message);
+        toast.error(error.message)
       }
-      toast.error("Failed to create budget");
+      toast.error('Failed to create budget')
     }
-  };
+  }
 
   const handleUpdate = async (data: CreateBudgetData) => {
-    if (!editingBudget) return;
+    if (!editingBudget) return
     try {
       await updateMutation.mutateAsync({
         id: editingBudget.id,
         data: { ...data },
-      });
-      toast.success("Budget updated successfully");
-      setIsFormOpen(false);
-      setEditingBudget(null);
-    } catch (error) {
-      toast.error("Failed to update budget");
+      })
+      toast.success('Budget updated successfully')
+      setIsFormOpen(false)
+      setEditingBudget(null)
+    } catch {
+      toast.error('Failed to update budget')
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId) return
     try {
-      await deleteMutation.mutateAsync(deleteId);
-      toast.success("Budget deleted successfully");
-      setDeleteId(null);
-    } catch (error) {
-      toast.error("Failed to delete budget");
+      await deleteMutation.mutateAsync(deleteId)
+      toast.success('Budget deleted successfully')
+      setDeleteId(null)
+    } catch {
+      toast.error('Failed to delete budget')
     }
-  };
+  }
 
   const openCreateModal = () => {
-    setEditingBudget(null);
-    setIsFormOpen(true);
-  };
+    setEditingBudget(null)
+    setIsFormOpen(true)
+  }
 
   const openEditModal = (budget: Budget) => {
-    setEditingBudget(budget);
-    setIsFormOpen(true);
-  };
+    setEditingBudget(budget)
+    setIsFormOpen(true)
+  }
 
   const handleExport = () => {
-    if (!budgets) return;
-    const data = budgets.map(b => ({
+    if (!budgets) return
+    const data = budgets.map((b) => ({
       Category: b.category?.name || 'N/A',
       Limit: b.limitAmount,
       Spent: b.spentAmount,
       Remaining: b.limitAmount - b.spentAmount,
-      Frequency: b.frequency || 'N/A'
-    }));
-    exportToCSV(data, 'budgets-export');
-    toast.success("Budgets exported successfully");
-  };
+      Frequency: b.frequency || 'N/A',
+    }))
+    exportToCSV(data, 'budgets-export')
+    toast.success('Budgets exported successfully')
+  }
 
   return (
     <motion.div
@@ -107,7 +107,7 @@ export default function BudgetsPage() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Budgets</h1>
           <p className="text-muted-foreground">
@@ -115,14 +115,18 @@ export default function BudgetsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExport} disabled={!budgets || budgets.length === 0}>
-                <Download className="mr-2 h-4 w-4" />
-                Export CSV
-            </Button>
-            <Button onClick={openCreateModal}>
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={!budgets || budgets.length === 0}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button onClick={openCreateModal}>
             <Plus className="mr-2 h-4 w-4" />
             Create Budget
-            </Button>
+          </Button>
         </div>
       </div>
 
@@ -136,9 +140,10 @@ export default function BudgetsPage() {
       <BudgetForm
         open={isFormOpen}
         onOpenChange={(open) => {
-          setIsFormOpen(open);
-          if (!open) setEditingBudget(null);
+          setIsFormOpen(open)
+          if (!open) setEditingBudget(null)
         }}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={editingBudget ? handleUpdate : handleCreate}
         initialData={editingBudget}
         isLoading={createMutation.isPending || updateMutation.isPending}
@@ -159,6 +164,7 @@ export default function BudgetsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -168,5 +174,5 @@ export default function BudgetsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
-  );
+  )
 }
