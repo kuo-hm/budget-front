@@ -4,16 +4,16 @@ import type { NextRequest } from 'next/server';
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ['/', '/login', '/register', '/verified', '/auth/verify-email'];
-  
+  const publicRoutes = ['/', '/login', '/register', '/verified', '/auth/verify-email', "/forgot-password", "/auth/check-email"];
+
   // Check if the current path is a public route
   const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
 
   // Get the token from the cookies
   // We check for common names since the user didn't specify the exact cookie name
-  const token = request.cookies.get('accessToken')?.value || 
-                request.cookies.get('Authentication')?.value ||
-                request.cookies.get('token')?.value;
+  const token = request.cookies.get('accessToken')?.value ||
+    request.cookies.get('Authentication')?.value ||
+    request.cookies.get('token')?.value;
 
   // If the user is not authenticated and tries to access a private route
   if (!token && !isPublicRoute) {
@@ -25,8 +25,8 @@ export function proxy(request: NextRequest) {
   // We can optionally redirect them to dashboard, but the user didn't explicitly ask for this.
   // However, it's good practice.
   if (token && (pathname === '/login' || pathname === '/register')) {
-     const dashboardUrl = new URL('/dashboard', request.url);
-     return NextResponse.redirect(dashboardUrl);
+    const dashboardUrl = new URL('/dashboard', request.url);
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return NextResponse.next();

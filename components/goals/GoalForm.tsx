@@ -1,10 +1,6 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -12,27 +8,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Goal, CreateGoalData } from "@/lib/api/goals";
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { ResponsiveDialog } from '@/components/ui/responsive-dialog'
+import { CreateGoalData, Goal } from '@/lib/api/goals'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const goalSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, 'Name is required'),
   targetAmount: z.coerce
     .number()
-    .min(0.01, "Target amount must be greater than 0"),
+    .min(0.01, 'Target amount must be greater than 0'),
   targetDate: z.string().optional(),
-});
+})
 
-type GoalFormValues = z.infer<typeof goalSchema>;
+type GoalFormValues = z.infer<typeof goalSchema>
 
 interface GoalFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateGoalData) => void;
-  initialData?: Goal | null;
-  isLoading?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CreateGoalData) => void
+  initialData?: Goal | null
+  isLoading?: boolean
 }
 
 export function GoalForm({
@@ -46,11 +46,11 @@ export function GoalForm({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(goalSchema) as any,
     defaultValues: {
-      name: "",
+      name: '',
       targetAmount: 0,
-      targetDate: "",
+      targetDate: '',
     },
-  });
+  })
 
   useEffect(() => {
     if (open) {
@@ -59,39 +59,42 @@ export function GoalForm({
           name: initialData.name,
           targetAmount: initialData.targetAmount,
           targetDate: initialData.targetDate
-            ? initialData.targetDate.split("T")[0]
-            : "",
-        });
+            ? initialData.targetDate.split('T')[0]
+            : '',
+        })
       } else {
         form.reset({
-          name: "",
+          name: '',
           targetAmount: 0,
-          targetDate: "",
-        });
+          targetDate: '',
+        })
       }
     }
-  }, [open, initialData, form]);
+  }, [open, initialData, form])
 
   const handleSubmit = (values: GoalFormValues) => {
     onSubmit({
       ...values,
       targetDate: values.targetDate || undefined,
-    });
-  };
+    })
+  }
 
   return (
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={initialData ? "Edit Goal" : "Create Goal"}
+      title={initialData ? 'Edit Goal' : 'Create Goal'}
       description={
         initialData
-          ? "Update the details of your savings goal."
-          : "Set a new savings goal to track your progress."
+          ? 'Update the details of your savings goal.'
+          : 'Set a new savings goal to track your progress.'
       }
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => void form.handleSubmit(handleSubmit)(e)}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
             name="name"
@@ -148,11 +151,11 @@ export function GoalForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : initialData ? "Update" : "Create"}
+              {isLoading ? 'Saving...' : initialData ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>
       </Form>
     </ResponsiveDialog>
-  );
+  )
 }

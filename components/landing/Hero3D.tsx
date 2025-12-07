@@ -9,17 +9,45 @@ import { Button } from '@/components/ui/button';
 import { fadeIn, slideInFromLeft } from '@/lib/utils/animations';
 import { ArrowRight, Play } from 'lucide-react';
 import Link from 'next/link';
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export function Hero3D() {
   const [isHovering, setIsHovering] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const bgRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+  
+    const ctx = gsap.context(() => {
+      if (bgRef.current && containerRef.current) {
+        gsap.to(bgRef.current, {
+          yPercent: 50,
+          ease: "none",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
+    });
+  
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section 
+      ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <div className="absolute inset-0 opacity-40 -z-10">
+      <div ref={bgRef} className="absolute inset-0 opacity-40 -z-10">
         <Canvas>
           <PerspectiveCamera makeDefault position={[0, 0, 15]} />
           <EnhancedFloatingCoins isHovering={isHovering} />

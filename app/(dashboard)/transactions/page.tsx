@@ -1,27 +1,9 @@
-"use client";
+'use client'
 
-import { useState, useRef } from "react";
-import { Plus, Trash, Download, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TransactionFilters } from "@/components/transactions/TransactionFilters";
-import { TransactionList } from "@/components/transactions/TransactionList";
-import { TransactionForm } from "@/components/transactions/TransactionForm";
-import { TransactionSummary } from "@/components/transactions/TransactionSummary";
-import { motion } from "framer-motion";
-import {
-  useTransactions,
-  useCreateTransaction,
-  useUpdateTransaction,
-  useDeleteTransaction,
-  useExportTransactions,
-  useImportTransactions,
-} from "@/lib/hooks/useTransactions";
-import {
-  Transaction,
-  TransactionFilters as FilterType,
-  CreateTransactionData,
-} from "@/lib/api/transactions";
-import { toast } from "sonner";
+import { TransactionFilters } from '@/components/transactions/TransactionFilters'
+import { TransactionForm } from '@/components/transactions/TransactionForm'
+import { TransactionList } from '@/components/transactions/TransactionList'
+import { TransactionSummary } from '@/components/transactions/TransactionSummary'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,119 +13,137 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  CreateTransactionData,
+  TransactionFilters as FilterType,
+  Transaction,
+} from '@/lib/api/transactions'
+import {
+  useCreateTransaction,
+  useDeleteTransaction,
+  useExportTransactions,
+  useImportTransactions,
+  useTransactions,
+  useUpdateTransaction,
+} from '@/lib/hooks/useTransactions'
+import { motion } from 'framer-motion'
+import { Download, Plus, Upload } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 export default function TransactionsPage() {
   const [filters, setFilters] = useState<FilterType>({
     page: 1,
     limit: 10,
-  });
+  })
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] =
-    useState<Transaction | null>(null);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+    useState<Transaction | null>(null)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   // File input ref for import
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Queries & Mutations
-  const { data, isLoading } = useTransactions(filters);
-  const createMutation = useCreateTransaction();
-  const updateMutation = useUpdateTransaction();
-  const deleteMutation = useDeleteTransaction();
-  const exportMutation = useExportTransactions();
-  const importMutation = useImportTransactions();
+  const { data, isLoading } = useTransactions(filters)
+  const createMutation = useCreateTransaction()
+  const updateMutation = useUpdateTransaction()
+  const deleteMutation = useDeleteTransaction()
+  const exportMutation = useExportTransactions()
+  const importMutation = useImportTransactions()
 
   // Handlers
   const handleCreate = async (data: CreateTransactionData) => {
     try {
-      await createMutation.mutateAsync(data);
-      toast.success("Transaction created successfully");
-      setIsFormOpen(false);
-    } catch (error) {
-      toast.error("Failed to create transaction");
+      await createMutation.mutateAsync(data)
+      toast.success('Transaction created successfully')
+      setIsFormOpen(false)
+    } catch {
+      toast.error('Failed to create transaction')
     }
-  };
+  }
 
   const handleUpdate = async (data: CreateTransactionData) => {
-    if (!editingTransaction) return;
+    if (!editingTransaction) return
     try {
       await updateMutation.mutateAsync({
         id: editingTransaction.id,
         data: { ...data, id: editingTransaction.id },
-      });
-      toast.success("Transaction updated successfully");
-      setIsFormOpen(false);
-      setEditingTransaction(null);
-    } catch (error) {
-      toast.error("Failed to update transaction");
+      })
+      toast.success('Transaction updated successfully')
+      setIsFormOpen(false)
+      setEditingTransaction(null)
+    } catch {
+      toast.error('Failed to update transaction')
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId) return
     try {
-      await deleteMutation.mutateAsync(deleteId);
-      toast.success("Transaction deleted successfully");
-      setDeleteId(null);
-    } catch (error) {
-      toast.error("Failed to delete transaction");
+      await deleteMutation.mutateAsync(deleteId)
+      toast.success('Transaction deleted successfully')
+      setDeleteId(null)
+    } catch {
+      toast.error('Failed to delete transaction')
     }
-  };
+  }
 
   const handleExport = async () => {
     try {
-      const blob = await exportMutation.mutateAsync(filters);
+      const blob = await exportMutation.mutateAsync(filters)
       if (blob) {
-        const url = window.URL.createObjectURL(new Blob([blob as any]));
-        const link = document.createElement("a");
-        link.href = url;
+        const url = window.URL.createObjectURL(new Blob([blob as BlobPart]))
+        const link = document.createElement('a')
+        link.href = url
         link.setAttribute(
-          "download",
-          `transactions-${new Date().toISOString()}.csv`
-        );
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+          'download',
+          `transactions-${new Date().toISOString()}.csv`,
+        )
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
       }
-      toast.success("Transactions exported successfully");
-    } catch (error) {
-      toast.error("Failed to export transactions");
+      toast.success('Transactions exported successfully')
+    } catch {
+      toast.error('Failed to export transactions')
     }
-  };
+  }
 
   const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const file = event.target.files?.[0]
+    if (!file) return
 
     try {
-      await importMutation.mutateAsync(file);
-      toast.success("Transactions imported successfully");
+      await importMutation.mutateAsync(file)
+      toast.success('Transactions imported successfully')
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = ''
       }
-    } catch (error) {
-      toast.error("Failed to import transactions");
+    } catch {
+      toast.error('Failed to import transactions')
     }
-  };
+  }
 
   const openCreateModal = () => {
-    setEditingTransaction(null);
-    setIsFormOpen(true);
-  };
+    setEditingTransaction(null)
+    setIsFormOpen(true)
+  }
 
   const openEditModal = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-    setIsFormOpen(true);
-  };
+    setEditingTransaction(transaction)
+    setIsFormOpen(true)
+  }
 
   return (
     <motion.div
@@ -152,24 +152,24 @@ export default function TransactionsPage() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
           <p className="text-muted-foreground">
             Manage your income and expenses
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <input
             type="file"
             ref={fileInputRef}
-            onChange={handleFileChange}
+            onChange={(e) => void handleFileChange(e)}
             className="hidden"
             accept=".csv"
           />
           <Button
             variant="outline"
-            onClick={handleExport}
+            onClick={() => void handleExport()}
             disabled={exportMutation.isPending}
           >
             <Download className="mr-2 h-4 w-4" />
@@ -189,7 +189,6 @@ export default function TransactionsPage() {
           </Button>
         </div>
       </div>
-
 
       <TransactionSummary
       // startDate={filters.startDate}
@@ -211,8 +210,8 @@ export default function TransactionsPage() {
       <TransactionForm
         open={isFormOpen}
         onOpenChange={(open) => {
-          setIsFormOpen(open);
-          if (!open) setEditingTransaction(null);
+          setIsFormOpen(open)
+          if (!open) setEditingTransaction(null)
         }}
         onSubmit={editingTransaction ? handleUpdate : handleCreate}
         initialData={editingTransaction}
@@ -235,7 +234,7 @@ export default function TransactionsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={() => void handleDelete()}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
@@ -244,5 +243,5 @@ export default function TransactionsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
-  );
+  )
 }

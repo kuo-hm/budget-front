@@ -1,58 +1,60 @@
-"use client";
+'use client'
 
-import { useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { authApi } from "@/lib/api/auth";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-} from "@/components/ui/input-otp";
-import { toast } from "sonner";
-import { Loader2, MailCheck } from "lucide-react";
+} from '@/components/ui/input-otp'
+import { authApi } from '@/lib/api/auth'
+import { Loader2, MailCheck } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { toast } from 'sonner'
 
 function VerifyEmailContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const token = searchParams.get("token");
-  const [code, setCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const token = searchParams.get('token')
+  const [code, setCode] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleVerify = async () => {
-    if (!token) {
-      toast.error("Invalid verification link. Missing token.");
-      return;
-    }
+    if (!token) return
 
     if (code.length !== 6) {
-      toast.error("Please enter a valid 6-digit code.");
-      return;
+      toast.error('Please enter a valid 6-digit code.')
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      await authApi.verifyEmail({ token, code });
-      toast.success("Email verified successfully!");
-      router.push("/login");
+      await authApi.verifyEmail({ token, code })
+      toast.success('Email verified successfully!')
+      router.push('/login')
+    } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to verify email.");
+      if ((error as any).response?.data?.message) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        toast.error((error as any).response.data.message)
+      } else {
+        toast.error('Failed to verify email.')
+      }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   if (!token) {
     return (
-      <Card className="w-full max-w-md mx-auto mt-20">
+      <Card className="mx-auto mt-20 w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-destructive">Invalid Link</CardTitle>
           <CardDescription>
@@ -61,26 +63,26 @@ function VerifyEmailContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={() => router.push("/login")} className="w-full">
+          <Button onClick={() => router.push('/login')} className="w-full">
             Back to Login
           </Button>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-20">
+    <Card className="mx-auto mt-20 w-full max-w-md">
       <CardHeader className="text-center">
-        <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <MailCheck className="h-6 w-6 text-primary" />
+        <div className="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+          <MailCheck className="text-primary h-6 w-6" />
         </div>
         <CardTitle>Verify your Email</CardTitle>
         <CardDescription>
           Enter the 6-digit code sent to your email address.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6 flex flex-col items-center">
+      <CardContent className="flex flex-col items-center space-y-6">
         <InputOTP
           maxLength={6}
           value={code}
@@ -98,7 +100,7 @@ function VerifyEmailContent() {
         </InputOTP>
 
         <Button
-          onClick={handleVerify}
+          onClick={() => void handleVerify()}
           className="w-full"
           disabled={isLoading || code.length !== 6}
         >
@@ -107,15 +109,15 @@ function VerifyEmailContent() {
         </Button>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="bg-background flex min-h-screen items-center justify-center p-4">
       <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
         <VerifyEmailContent />
       </Suspense>
     </div>
-  );
+  )
 }

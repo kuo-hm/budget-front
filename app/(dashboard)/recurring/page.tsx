@@ -1,21 +1,7 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { RecurringTransactionList } from "@/components/recurring/RecurringTransactionList";
-import { RecurringTransactionForm } from "@/components/recurring/RecurringTransactionForm";
-import {
-  useRecurringTransactions,
-  useCreateRecurringTransaction,
-  useUpdateRecurringTransaction,
-  useDeleteRecurringTransaction,
-} from "@/lib/hooks/useRecurringTransactions";
-import {
-  RecurringTransaction,
-  CreateRecurringTransactionData,
-} from "@/lib/api/recurring-transactions";
-import { toast } from "sonner";
+import { RecurringTransactionForm } from '@/components/recurring/RecurringTransactionForm'
+import { RecurringTransactionList } from '@/components/recurring/RecurringTransactionList'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,67 +11,81 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { motion } from "framer-motion";
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  CreateRecurringTransactionData,
+  RecurringTransaction,
+} from '@/lib/api/recurring-transactions'
+import {
+  useCreateRecurringTransaction,
+  useDeleteRecurringTransaction,
+  useRecurringTransactions,
+  useUpdateRecurringTransaction,
+} from '@/lib/hooks/useRecurringTransactions'
+import { motion } from 'framer-motion'
+import { Plus } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export default function RecurringTransactionsPage() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTransaction, setEditingTransaction] =
-    useState<RecurringTransaction | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+    useState<RecurringTransaction | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
 
   // Queries & Mutations
-  const { data: transactions, isLoading } = useRecurringTransactions();
-  const createMutation = useCreateRecurringTransaction();
-  const updateMutation = useUpdateRecurringTransaction();
-  const deleteMutation = useDeleteRecurringTransaction();
+  const { data: transactions, isLoading } = useRecurringTransactions()
+  const createMutation = useCreateRecurringTransaction()
+  const updateMutation = useUpdateRecurringTransaction()
+  const deleteMutation = useDeleteRecurringTransaction()
 
   // Handlers
   const handleCreate = async (data: CreateRecurringTransactionData) => {
     try {
-      await createMutation.mutateAsync(data);
-      toast.success("Recurring transaction created successfully");
-      setIsFormOpen(false);
-    } catch (error) {
-      toast.error("Failed to create recurring transaction");
+      await createMutation.mutateAsync(data)
+      toast.success('Recurring transaction created successfully')
+      setIsFormOpen(false)
+    } catch {
+      toast.error('Failed to create recurring transaction')
     }
-  };
+  }
 
   const handleUpdate = async (data: CreateRecurringTransactionData) => {
-    if (!editingTransaction) return;
+    if (!editingTransaction) return
     try {
       await updateMutation.mutateAsync({
         id: editingTransaction.id,
         data: { ...data },
-      });
-      toast.success("Recurring transaction updated successfully");
-      setIsFormOpen(false);
-      setEditingTransaction(null);
-    } catch (error) {
-      toast.error("Failed to update recurring transaction");
+      })
+      toast.success('Recurring transaction updated successfully')
+      setIsFormOpen(false)
+      setEditingTransaction(null)
+    } catch {
+      toast.error('Failed to update recurring transaction')
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!deleteId) return;
+    if (!deleteId) return
     try {
-      await deleteMutation.mutateAsync(deleteId);
-      toast.success("Recurring transaction deleted successfully");
-      setDeleteId(null);
-    } catch (error) {
-      toast.error("Failed to delete recurring transaction");
+      await deleteMutation.mutateAsync(deleteId)
+      toast.success('Recurring transaction deleted successfully')
+      setDeleteId(null)
+    } catch {
+      toast.error('Failed to delete recurring transaction')
     }
-  };
+  }
 
   const openCreateModal = () => {
-    setEditingTransaction(null);
-    setIsFormOpen(true);
-  };
+    setEditingTransaction(null)
+    setIsFormOpen(true)
+  }
 
   const openEditModal = (transaction: RecurringTransaction) => {
-    setEditingTransaction(transaction);
-    setIsFormOpen(true);
-  };
+    setEditingTransaction(transaction)
+    setIsFormOpen(true)
+  }
 
   return (
     <motion.div
@@ -94,7 +94,7 @@ export default function RecurringTransactionsPage() {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             Recurring Transactions
@@ -119,9 +119,10 @@ export default function RecurringTransactionsPage() {
       <RecurringTransactionForm
         open={isFormOpen}
         onOpenChange={(open) => {
-          setIsFormOpen(open);
-          if (!open) setEditingTransaction(null);
+          setIsFormOpen(open)
+          if (!open) setEditingTransaction(null)
         }}
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={editingTransaction ? handleUpdate : handleCreate}
         initialData={editingTransaction}
         isLoading={createMutation.isPending || updateMutation.isPending}
@@ -142,7 +143,7 @@ export default function RecurringTransactionsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={() => void handleDelete()}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
@@ -151,5 +152,5 @@ export default function RecurringTransactionsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </motion.div>
-  );
+  )
 }

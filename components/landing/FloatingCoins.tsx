@@ -1,27 +1,26 @@
-"use client";
+'use client'
 
-import { useFrame } from "@react-three/fiber";
-import { useRef, useMemo, useState, useEffect } from "react";
-import { Mesh, Vector3 } from "three";
-import * as THREE from "three";
+import { useFrame } from '@react-three/fiber'
+import { useEffect, useRef, useState } from 'react'
+import { Mesh, Vector3 } from 'three'
 
 interface CoinProps {
-  position: Vector3;
-  speed: number;
+  position: Vector3
+  speed: number
 }
 
 function Coin({ position, speed }: CoinProps) {
-  const meshRef = useRef<Mesh>(null);
+  const meshRef = useRef<Mesh>(null)
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
+      meshRef.current.rotation.y += 0.01
       meshRef.current.position.y =
-        position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5;
+        position.y + Math.sin(state.clock.elapsedTime * speed) * 0.5
       meshRef.current.position.x =
-        position.x + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3;
+        position.x + Math.cos(state.clock.elapsedTime * speed * 0.5) * 0.3
     }
-  });
+  })
 
   return (
     <mesh ref={meshRef} position={position}>
@@ -34,29 +33,27 @@ function Coin({ position, speed }: CoinProps) {
         roughness={0.2}
       />
     </mesh>
-  );
+  )
 }
 
 export function FloatingCoins() {
-  const [coins, setCoins] = useState<{ position: Vector3; speed: number }[]>(
-    []
-  );
+  const [coins, setCoins] = useState<{ position: Vector3; speed: number }[]>([])
 
   useEffect(() => {
-    const items: { position: Vector3; speed: number }[] = [];
+    const items: { position: Vector3; speed: number }[] = []
     for (let i = 0; i < 15; i++) {
       items.push({
         position: new Vector3(
           (Math.random() - 0.5) * 20,
           (Math.random() - 0.5) * 10,
-          (Math.random() - 0.5) * 10
+          (Math.random() - 0.5) * 10,
         ),
         speed: 0.5 + Math.random() * 0.5,
-      });
+      })
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCoins(items);
-  }, []);
+    setCoins(items)
+  }, [])
 
   return (
     <>
@@ -67,5 +64,5 @@ export function FloatingCoins() {
         <Coin key={index} position={coin.position} speed={coin.speed} />
       ))}
     </>
-  );
+  )
 }
