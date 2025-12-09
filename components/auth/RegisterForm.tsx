@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { API_URL } from '@/lib/constants/api'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { slideInFromRight } from '@/lib/utils/animations'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -90,9 +91,7 @@ export function RegisterForm() {
     const left = window.screen.width / 2 - width / 2
     const top = window.screen.height / 2 - height / 2
 
-    const url = `${
-      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
-    }/auth/${provider}`
+    const url = `${API_URL}/auth/${provider}`
 
     const popup = window.open(
       url,

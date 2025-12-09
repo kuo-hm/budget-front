@@ -1,53 +1,52 @@
-import axios from "axios";
+import { API_URL } from '@/lib/constants/api'
+import axios from 'axios'
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002",
+  baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
   withCredentials: true,
-});
-
+})
 
 // Request interceptor removed as we use cookies
 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config
 
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes("/auth/refresh") &&
-      !originalRequest.url?.includes("/auth/logout")
+      !originalRequest.url?.includes('/auth/refresh') &&
+      !originalRequest.url?.includes('/auth/logout')
     ) {
-      originalRequest._retry = true;
+      originalRequest._retry = true
 
       try {
         await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002"
-          }/auth/refresh`,
+          `${API_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
-        );
+          { withCredentials: true },
+        )
         // Retry the original request
-        return apiClient(originalRequest);
+        return apiClient(originalRequest)
       } catch (refreshError) {
         if (
-          typeof window !== "undefined" &&
-          !window.location.pathname.startsWith("/login") &&
-          !window.location.pathname.startsWith("/register") &&
-          window.location.pathname !== "/"
+          typeof window !== 'undefined' &&
+          !window.location.pathname.startsWith('/login') &&
+          !window.location.pathname.startsWith('/register') &&
+          window.location.pathname !== '/'
         ) {
-          window.location.href = "/login";
+          window.location.href = '/login'
         }
-        return Promise.reject(refreshError);
+        return Promise.reject(refreshError)
       }
     }
 
-    return Promise.reject(error);
-  }
-);
+    return Promise.reject(error)
+  },
+)
 
 export default apiClient

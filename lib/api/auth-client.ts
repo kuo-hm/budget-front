@@ -1,7 +1,8 @@
+import { API_URL } from '@/lib/constants/api'
 import axios from 'axios'
 
 const authApiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

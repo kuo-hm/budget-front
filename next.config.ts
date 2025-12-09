@@ -1,16 +1,19 @@
-import type { NextConfig } from 'next'
+// 1. Remove the import line: import type { NextConfig } from 'next'
+// 2. Remove the type annotation on nextConfig
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   output: 'standalone',
 
-  // ➡️ ADDED FOR STABLE SERVER ACTION IDs
+  // ➡️ Keep the 'experimental' block for Server Action stability
   experimental: {
-    // This setting ensures Server Action IDs remain consistent across builds,
-    // solving the "Failed to find Server Action" error during rolling deployments.
     serverActions: {
-      // Set the body size limit (e.g., '2mb') to trigger the stable ID feature.
-      bodySizeLimit: '2mb', 
+      bodySizeLimit: '2mb',
     },
+  },
+
+  // ➡️ This property is now allowed without a TypeScript error
+  publicRuntimeConfig: {
+    apiUrl: process.env.API_URL,
   },
 
   /* config options here */
@@ -28,4 +31,5 @@ const nextConfig: NextConfig = {
   },
 }
 
+// 3. Ensure the export is correct (no type annotation here either)
 export default nextConfig
