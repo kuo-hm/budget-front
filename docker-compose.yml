@@ -1,0 +1,6 @@
+services:
+  budget-front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: budget-front
