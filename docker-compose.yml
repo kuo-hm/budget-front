@@ -4,5 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
     image: budget-front
+    environment:
+      # Database and Port
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      
     ports:
       - "${PORT}:3000"
