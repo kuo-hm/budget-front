@@ -4,3 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     image: budget-front
+    ports:
+      - "${PORT}:3000"
+    volumes:
+      - .:/app
+    working_dir: /app
