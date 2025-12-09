@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.2](https://github.com/kuo-hm/budget-front/compare/v0.1.1...v0.1.2) (2025-12-09)
+
+
+### Features
+
+* Add Docker Compose configuration, streamline Dockerfile for npm and security, and update Next.js to 16.0.8. ([f9030fe](https://github.com/kuo-hm/budget-front/commit/f9030fe14edf53ff3efed84b4b9bb58abb18d986))
+
 ## 0.1.1 (2025-12-07)
 
 
