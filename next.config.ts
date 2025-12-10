@@ -11,11 +11,6 @@ const nextConfig = {
     },
   },
 
-  // ➡️ This property is now allowed without a TypeScript error
-  publicRuntimeConfig: {
-    apiUrl: process.env.API_URL,
-  },
-
   /* config options here */
   async headers() {
     return [
