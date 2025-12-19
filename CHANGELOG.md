@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.5](https://github.com/kuo-hm/budget-front/compare/v0.1.4...v0.1.5) (2025-12-19)
+
+
+### Features
+
+* Centralize API URL configuration via a new constant and environment variable, updating client usage, Docker setup, and documentation. ([133ccfb](https://github.com/kuo-hm/budget-front/commit/133ccfbacc6769611adcc31a4902ff5192394d67))
+* implement comprehensive authentication, user management, analytics dashboards, and core budget transaction features. ([a96117a](https://github.com/kuo-hm/budget-front/commit/a96117a690f9e2af4e481d33ce1ff9948739f8dc))
+
 ## [0.1.4](https://github.com/kuo-hm/budget-front/compare/v0.1.2...v0.1.4) (2025-12-09)
 
 
