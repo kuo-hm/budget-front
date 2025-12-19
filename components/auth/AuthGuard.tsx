@@ -25,7 +25,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       // Always try to refresh/verify session on mount
       try {
-        await refreshAccessToken()
+        if (!PUBLIC_ROUTES.includes(pathname)) {
+          await refreshAccessToken()
+        }
       } catch {
         // If refresh fails, we are not authenticated
       } finally {
@@ -43,6 +45,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     if (isAuthenticated) {
       if (isPublicRoute) {
+        console.log('isPublicRoute')
         router.push('/dashboard')
       }
     } else {

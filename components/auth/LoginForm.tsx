@@ -9,8 +9,8 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { API_URL } from '@/lib/constants/api'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useOAuthPopup } from '@/lib/hooks/useOAuthPopup'
 import { slideInFromRight } from '@/lib/utils/animations'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react'
@@ -36,74 +36,36 @@ export function LoginForm() {
     })()
   }
 
-  const openOAuthPopup = (provider: 'google' | 'github') => {
-    setOauthLoading(provider)
-
-    const width = 700
-    const height = 800
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
-
-    const url = `${API_URL}/auth/${provider}`
-
-    const popup = window.open(
-      url,
-      'OAuth',
-      `width=${width},height=${height},left=${left},top=${top}`,
-    )
-
-    // console.log('OAuth popup opened', popup)
-
-    // --- Listen for success from popup ---
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === 'OAUTH_SUCCESS') {
-        // console.log('OAuth success message received')
-        setOauthLoading(null)
-        popup?.close()
-        window.removeEventListener('message', handleMessage)
-      }
+  /* --- Replaced by useOAuthPopup --- */
+  const handleOAuthSuccess = async () => {
+    try {
+      await refreshAccessToken()
+       // Small delay to ensure cookies are set/propagated if needed
+      setTimeout(() => {
+          window.location.href = '/dashboard'
+      }, 500)
+    } catch (err) {
+      console.error('OAuth success received but session refresh failed:', err)
     }
-
-    window.addEventListener('message', handleMessage)
-
-    // --- Fallback: detect if user manually closes the popup ---
-    // We removed the polling check because it was unreliable with cross-origin redirects.
-    // Instead, we provide a manual "Cancel" button in the UI.
   }
 
+  const { openPopup, isLoading: isPopupLoading, popupWindow } = useOAuthPopup({
+    onSuccess: handleOAuthSuccess,
+    onError: (err) => console.error('OAuth error:', err),
+  })
+
+  // Sync local loading state with hook if needed, or just use hook's state
+  // We'll use local state to track *which* provider is loading for specific button spinners
   useEffect(() => {
-    const handleSuccess = async () => {
-      try {
-        await refreshAccessToken()
-        window.location.href = '/dashboard'
-      } catch (err) {
-        console.error('OAuth success received but session refresh failed:', err)
-      }
+    if (!isPopupLoading) {
+      setOauthLoading(null)
     }
+  }, [isPopupLoading])
 
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return
-      if (event.data.type === 'OAUTH_SUCCESS') {
-        handleSuccess()
-      }
-    }
-
-    // Listen to window messages (legacy/backup)
-    window.addEventListener('message', handleMessage)
-
-    // Listen to BroadcastChannel (robust)
-    const channel = new BroadcastChannel('auth_channel')
-    channel.onmessage = (event) => {
-      if (event.data.type === 'OAUTH_SUCCESS') {
-        handleSuccess()
-      }
-    }
-
-    return () => {
-      window.removeEventListener('message', handleMessage)
-      channel.close()
-    }
-  }, [refreshAccessToken])
+  const handleOpenPopup = (provider: 'google' | 'github') => {
+      setOauthLoading(provider)
+      openPopup(provider)
+  }
 
   return (
     <motion.div
@@ -228,7 +190,7 @@ export function LoginForm() {
                 variant="outline"
                 type="button"
                 disabled={isLoading || !!oauthLoading}
-                onClick={() => openOAuthPopup('google')}
+                onClick={() => handleOpenPopup('google')}
                 className="cursor-pointer"
               >
                 {oauthLoading === 'google' ? (
@@ -259,7 +221,7 @@ export function LoginForm() {
                 variant="outline"
                 type="button"
                 disabled={isLoading || !!oauthLoading}
-                onClick={() => openOAuthPopup('github')}
+                onClick={() => handleOpenPopup('github')}
                 className="cursor-pointer"
               >
                 {oauthLoading === 'github' ? (

@@ -116,7 +116,7 @@ export function TransactionForm({
       description: data.description,
       date: data.date.toISOString(),
       categoryId: data.categoryId,
-      goalId: data.type === 'SAVING' ? data.goalId : undefined,
+      goalId: data.type === 'SAVING' && data.goalId ? data.goalId : undefined,
     })
     onOpenChange(false)
   }

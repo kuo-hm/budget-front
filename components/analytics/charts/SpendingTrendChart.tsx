@@ -1,33 +1,34 @@
-"use client";
+'use client'
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { SpendingTrend } from '@/lib/api/analytics'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { formatCompactNumber } from "@/lib/utils"
+import { format } from 'date-fns'
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SpendingTrend } from "@/lib/api/analytics";
-import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+    Area,
+    AreaChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts'
 
 interface SpendingTrendChartProps {
-  data?: SpendingTrend[];
-  isLoading: boolean;
+  data?: SpendingTrend[]
+  isLoading: boolean
 }
 
 export function SpendingTrendChart({
   data,
   isLoading,
 }: SpendingTrendChartProps) {
-  const { format: formatCurrency } = useCurrency();
+  const { format: formatCurrency } = useCurrency()
 
   if (isLoading) {
-    return <Skeleton className="h-[350px] w-full rounded-xl" />;
+    return <Skeleton className="h-[350px] w-full rounded-xl" />
   }
 
   return (
@@ -38,7 +39,7 @@ export function SpendingTrendChart({
       <CardContent className="pl-2">
         <div className="h-[300px] w-full">
           {!data || data.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
+            <div className="text-muted-foreground flex h-full items-center justify-center">
               No data available
             </div>
           ) : (
@@ -81,60 +82,62 @@ export function SpendingTrendChart({
                   dataKey="date"
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => format(new Date(value), "MMM d")}
+                  tickFormatter={(value) => format(new Date(value), 'MMM d')}
                   minTickGap={30}
                   tickMargin={10}
                 />
+
                 <YAxis
+                  width={80}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={(value) => formatCompactNumber(value)}
                 />
                 <Tooltip
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
-                        <div className="rounded-lg border bg-background p-2 shadow-sm">
-                          <div className="grid grid-cols-2 gap-2 mb-2">
+                        <div className="bg-background rounded-lg border p-2 shadow-sm">
+                          <div className="mb-2 grid grid-cols-2 gap-2">
                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
+                              <span className="text-muted-foreground text-[0.70rem] uppercase">
                                 Date
                               </span>
-                              <span className="font-bold text-muted-foreground">
+                              <span className="text-muted-foreground font-bold">
                                 {label
-                                  ? format(new Date(label), "MMM d, yyyy")
-                                  : ""}
+                                  ? format(new Date(label), 'MMM d, yyyy')
+                                  : ''}
                               </span>
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-emerald-500">
+                              <span className="text-[0.70rem] text-emerald-500 uppercase">
                                 Income
                               </span>
                               <span className="font-bold text-emerald-500">
                                 {formatCurrency(
-                                  (payload.find((p) => p.dataKey === "income")
-                                    ?.value as number) || 0
+                                  (payload.find((p) => p.dataKey === 'income')
+                                    ?.value as number) || 0,
                                 )}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-rose-500">
+                              <span className="text-[0.70rem] text-rose-500 uppercase">
                                 Expenses
                               </span>
                               <span className="font-bold text-rose-500">
                                 {formatCurrency(
-                                  (payload.find((p) => p.dataKey === "expenses")
-                                    ?.value as number) || 0
+                                  (payload.find((p) => p.dataKey === 'expenses')
+                                    ?.value as number) || 0,
                                 )}
                               </span>
                             </div>
                           </div>
                         </div>
-                      );
+                      )
                     }
-                    return null;
+                    return null
                   }}
                 />
                 <Area
@@ -157,5 +160,5 @@ export function SpendingTrendChart({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

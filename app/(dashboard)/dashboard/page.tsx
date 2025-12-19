@@ -1,5 +1,8 @@
-"use client";
+'use client'
 
+import { HealthScoreGauge } from '@/components/analytics/widgets/HealthScoreGauge'
+import { MonthlySummaryGrid } from '@/components/analytics/widgets/MonthlySummaryGrid'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   useBudgetPerformance,
   useCategoryBreakdown,
@@ -9,79 +12,75 @@ import {
   useSavingsRate,
   useSpendingTrends,
   useYearComparison,
-} from "@/lib/hooks/useAnalytics";
-import { MonthlySummaryGrid } from "@/components/analytics/widgets/MonthlySummaryGrid";
-import { HealthScoreGauge } from "@/components/analytics/widgets/HealthScoreGauge";
-import { motion } from "framer-motion";
-import { useEffect, useMemo, useState, lazy, Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@/lib/hooks/useAnalytics'
+import { motion } from 'framer-motion'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 
 const SpendingTrendChart = lazy(() =>
-  import("@/components/analytics/charts/SpendingTrendChart").then((module) => ({
+  import('@/components/analytics/charts/SpendingTrendChart').then((module) => ({
     default: module.SpendingTrendChart,
-  }))
-);
+  })),
+)
 const CategoryBreakdownChart = lazy(() =>
-  import("@/components/analytics/charts/CategoryBreakdownChart").then(
-    (module) => ({ default: module.CategoryBreakdownChart })
-  )
-);
+  import('@/components/analytics/charts/CategoryBreakdownChart').then(
+    (module) => ({ default: module.CategoryBreakdownChart }),
+  ),
+)
 const IncomeVsExpensesChart = lazy(() =>
-  import("@/components/analytics/charts/IncomeVsExpensesChart").then(
-    (module) => ({ default: module.IncomeVsExpensesChart })
-  )
-);
+  import('@/components/analytics/charts/IncomeVsExpensesChart').then(
+    (module) => ({ default: module.IncomeVsExpensesChart }),
+  ),
+)
 const BudgetPerformanceChart = lazy(() =>
-  import("@/components/analytics/charts/BudgetPerformanceChart").then(
-    (module) => ({ default: module.BudgetPerformanceChart })
-  )
-);
+  import('@/components/analytics/charts/BudgetPerformanceChart').then(
+    (module) => ({ default: module.BudgetPerformanceChart }),
+  ),
+)
 const SavingsRateChart = lazy(() =>
-  import("@/components/analytics/charts/SavingsRateChart").then((module) => ({
+  import('@/components/analytics/charts/SavingsRateChart').then((module) => ({
     default: module.SavingsRateChart,
-  }))
-);
+  })),
+)
 const YearComparisonChart = lazy(() =>
-  import("@/components/analytics/charts/YearComparisonChart").then(
-    (module) => ({ default: module.YearComparisonChart })
-  )
-);
+  import('@/components/analytics/charts/YearComparisonChart').then(
+    (module) => ({ default: module.YearComparisonChart }),
+  ),
+)
 
 export default function AnalyticsPage() {
   // Fetch data
   const { data: monthlySummary, isLoading: isSummaryLoading } =
-    useMonthlySummary();
+    useMonthlySummary()
   const { data: spendingTrends, isLoading: isTrendsLoading } =
-    useSpendingTrends();
+    useSpendingTrends()
   const dateRange = useMemo(() => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     return {
       startDate: startOfMonth.toISOString(),
       endDate: now.toISOString(),
-    };
-  }, []);
+    }
+  }, [])
 
   const { data: categoryBreakdown, isLoading: isCategoryLoading } =
-    useCategoryBreakdown(dateRange.startDate, dateRange.endDate);
+    useCategoryBreakdown(dateRange.startDate, dateRange.endDate)
   const { data: incomeVsExpenses, isLoading: isIncomeLoading } =
-    useIncomeVsExpenses();
+    useIncomeVsExpenses()
   const { data: budgetPerformance, isLoading: isBudgetLoading } =
-    useBudgetPerformance();
-  const { data: savingsRate, isLoading: isSavingsLoading } = useSavingsRate();
-  const { data: yearComparison, isLoading: isYearLoading } =
-    useYearComparison();
-  const { data: healthScore, isLoading: isHealthLoading } = useHealthScore();
+    useBudgetPerformance()
+  const { data: savingsRate, isLoading: isSavingsLoading } = useSavingsRate()
+  const { data: yearComparison, isLoading: isYearLoading } = useYearComparison()
+  const { data: healthScore, isLoading: isHealthLoading } = useHealthScore()
 
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   if (!mounted) {
-    return null;
+    return null
   }
 
   return (
@@ -141,5 +140,5 @@ export default function AnalyticsPage() {
         <YearComparisonChart data={yearComparison} isLoading={isYearLoading} />
       </Suspense>
     </motion.div>
-  );
+  )
 }

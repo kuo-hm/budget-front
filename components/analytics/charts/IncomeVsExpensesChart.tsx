@@ -1,5 +1,8 @@
-"use client";
+'use client'
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { IncomeVsExpenses } from '@/lib/api/analytics'
 import {
   Bar,
   BarChart,
@@ -9,27 +12,25 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IncomeVsExpenses } from "@/lib/api/analytics";
-import { Skeleton } from "@/components/ui/skeleton";
+} from 'recharts'
 
-import { format } from "date-fns";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { formatCompactNumber } from '@/lib/utils'
+import { format } from 'date-fns'
 
 interface IncomeVsExpensesChartProps {
-  data?: IncomeVsExpenses;
-  isLoading: boolean;
+  data?: IncomeVsExpenses
+  isLoading: boolean
 }
 
 export function IncomeVsExpensesChart({
   data,
   isLoading,
 }: IncomeVsExpensesChartProps) {
-  const { format: formatCurrency } = useCurrency();
+  const { format: formatCurrency } = useCurrency()
 
   if (isLoading) {
-    return <Skeleton className="h-[350px] w-full rounded-xl" />;
+    return <Skeleton className="h-[350px] w-full rounded-xl" />
   }
 
   // Transform single object data into array for Recharts
@@ -38,13 +39,13 @@ export function IncomeVsExpensesChart({
         {
           period: `${format(
             new Date(data.period.startDate),
-            "MMM d"
-          )} - ${format(new Date(data.period.endDate), "MMM d")}`,
+            'MMM d',
+          )} - ${format(new Date(data.period.endDate), 'MMM d')}`,
           income: data.income,
           expenses: data.expenses,
         },
       ]
-    : [];
+    : []
 
   return (
     <Card>
@@ -54,7 +55,7 @@ export function IncomeVsExpensesChart({
       <CardContent className="pl-2">
         <div className="h-[300px] w-full">
           {!data ? (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
+            <div className="text-muted-foreground flex h-full items-center justify-center">
               No data available
             </div>
           ) : (
@@ -70,14 +71,16 @@ export function IncomeVsExpensesChart({
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="period" tickLine={false} axisLine={false} />
+
                 <YAxis
+                  width={80}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => formatCurrency(value)}
+                  tickFormatter={(value) => formatCompactNumber(value)}
                 />
                 <Tooltip
                   formatter={(value: number) => formatCurrency(value)}
-                  cursor={{ fill: "transparent" }}
+                  cursor={{ fill: 'transparent' }}
                 />
                 <Legend />
                 <Bar
@@ -98,5 +101,5 @@ export function IncomeVsExpensesChart({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

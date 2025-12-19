@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function VerifiedPage() {
     const [countdown, setCountdown] = useState(3);
@@ -12,6 +12,11 @@ export default function VerifiedPage() {
         if (window.opener) {
             window.opener.postMessage({ type: 'OAUTH_SUCCESS' }, window.location.origin);
         }
+
+        // Also broadcast on channel for robustness
+        const channel = new BroadcastChannel('auth_channel')
+        channel.postMessage({ type: 'OAUTH_SUCCESS' })
+        channel.close()
 
         // Countdown timer
         const timer = setInterval(() => {

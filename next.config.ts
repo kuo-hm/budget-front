@@ -24,6 +24,14 @@ const nextConfig = {
       },
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/uploads/:path*`,
+      },
+    ]
+  },
 }
 
 // 3. Ensure the export is correct (no type annotation here either)

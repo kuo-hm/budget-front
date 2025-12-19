@@ -1,26 +1,22 @@
-"use client";
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonthlySummary } from "@/lib/api/analytics";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  DollarSign,
-  PiggyBank,
-} from "lucide-react";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { MonthlySummary } from '@/lib/api/analytics'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { formatCompactNumber } from '@/lib/utils'
+import { ArrowDownIcon, ArrowUpIcon, DollarSign, PiggyBank } from 'lucide-react'
 
 interface MonthlySummaryGridProps {
-  data?: MonthlySummary;
-  isLoading: boolean;
+  data?: MonthlySummary
+  isLoading: boolean
 }
 
 export function MonthlySummaryGrid({
   data,
   isLoading,
 }: MonthlySummaryGridProps) {
-  const { format } = useCurrency();
+  const { format } = useCurrency()
 
   if (isLoading) {
     return (
@@ -29,10 +25,10 @@ export function MonthlySummaryGrid({
           <Skeleton key={i} className="h-32 rounded-xl" />
         ))}
       </div>
-    );
+    )
   }
 
-  if (!data) return null;
+  if (!data) return null
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -42,7 +38,9 @@ export function MonthlySummaryGrid({
           <ArrowUpIcon className="h-4 w-4 text-emerald-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{format(data.income)}</div>
+          <div className="text-2xl font-bold" title={format(data.income)}>
+            {formatCompactNumber(data.income)}
+          </div>
         </CardContent>
       </Card>
 
@@ -52,18 +50,23 @@ export function MonthlySummaryGrid({
           <ArrowDownIcon className="h-4 w-4 text-rose-500" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{format(data.expenses)}</div>
+          <div className="text-2xl font-bold" title={format(data.expenses)}>
+            {formatCompactNumber(data.expenses)}
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <DollarSign className="text-muted-foreground h-4 w-4" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {format(isNaN(data.savings) ? 0 : data.savings)}
+          <div
+            className="text-2xl font-bold"
+            title={format(isNaN(data.netSavings) ? 0 : data.netSavings)}
+          >
+            {formatCompactNumber(isNaN(data.netSavings) ? 0 : data.netSavings)}
           </div>
         </CardContent>
       </Card>
@@ -80,5 +83,5 @@ export function MonthlySummaryGrid({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

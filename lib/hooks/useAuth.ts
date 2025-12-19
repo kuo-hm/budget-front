@@ -28,6 +28,7 @@ export function useAuth() {
         const response = await authApi.login(data)
 
         setAuth(response.user, response.accessToken)
+        console.log(response)
         router.push('/dashboard')
         return response
       } catch (err: unknown) {

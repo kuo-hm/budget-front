@@ -75,7 +75,7 @@ export function GoalForm({
   const handleSubmit = (values: GoalFormValues) => {
     onSubmit({
       ...values,
-      targetDate: values.targetDate || undefined,
+      targetDate: values.targetDate ? new Date(values.targetDate) : undefined,
     })
   }
 

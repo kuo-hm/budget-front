@@ -1,5 +1,10 @@
-"use client";
+'use client'
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { YearComparisonResponse } from '@/lib/api/analytics'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { formatCompactNumber } from '@/lib/utils'
 import {
   CartesianGrid,
   Legend,
@@ -9,25 +14,21 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { YearComparisonResponse } from "@/lib/api/analytics";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+} from 'recharts'
 
 interface YearComparisonChartProps {
-  data?: YearComparisonResponse;
-  isLoading: boolean;
+  data?: YearComparisonResponse
+  isLoading: boolean
 }
 
 export function YearComparisonChart({
   data,
   isLoading,
 }: YearComparisonChartProps) {
-  const { format } = useCurrency();
+  const { format } = useCurrency()
 
   if (isLoading) {
-    return <Skeleton className="h-[350px] w-full rounded-xl" />;
+    return <Skeleton className="h-[350px] w-full rounded-xl" />
   }
 
   // Transform nested data for Recharts
@@ -36,7 +37,7 @@ export function YearComparisonChart({
       month: item.month,
       currentYear: item.currentYear.income, // Using Income for comparison
       previousYear: item.previousYear.income,
-    })) || [];
+    })) || []
 
   return (
     <Card>
@@ -46,7 +47,7 @@ export function YearComparisonChart({
       <CardContent className="pl-2">
         <div className="h-[300px] w-full">
           {!chartData || chartData.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
+            <div className="text-muted-foreground flex h-full items-center justify-center">
               No data available
             </div>
           ) : (
@@ -62,10 +63,12 @@ export function YearComparisonChart({
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} />
+
                 <YAxis
+                  width={80}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(value) => format(value)}
+                  tickFormatter={(value) => formatCompactNumber(value)}
                 />
                 <Tooltip formatter={(value: number) => format(value)} />
                 <Legend />
@@ -91,5 +94,5 @@ export function YearComparisonChart({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
