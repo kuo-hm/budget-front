@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.6](https://github.com/kuo-hm/budget-front/compare/v0.1.5...v0.1.6) (2026-01-02)
+
+
+### Features
+
+* make categoryId optional for recurring and new transactions, add type to transaction creation ([13d1660](https://github.com/kuo-hm/budget-front/commit/13d1660052eadfb841e383c8f3ea46bde69bb18c))
+
 ## [0.1.5](https://github.com/kuo-hm/budget-front/compare/v0.1.4...v0.1.5) (2025-12-19)
 
 
