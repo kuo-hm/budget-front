@@ -132,7 +132,7 @@ export function CategoryManager() {
     setIsDialogOpen(true)
   }
 
-  const onSubmit = (data: CategoryFormValues) => {
+  const onSubmit = async (data: CategoryFormValues): Promise<void> => {
     if (editingCategory) {
       updateCategory(
         { id: editingCategory.id, data },

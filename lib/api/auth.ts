@@ -1,4 +1,3 @@
-import { API_URL } from '@/lib/constants/api'
 import authApiClient from './auth-client'
 import apiClient from './client'
 
@@ -67,7 +66,6 @@ export const authApi = {
   },
 
   login: async (data: LoginData): Promise<AuthResponse> => {
-    console.log('Login data:', API_URL)
     const response = await authApiClient.post<AuthResponse>('/auth/login', data)
     return response.data
   },

@@ -31,36 +31,39 @@ export function AvatarUpload({
     setPreview(currentAvatarUrl || null)
   }, [currentAvatarUrl])
 
-  const handleUpload = async (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file (PNG, JPG, etc.)')
-      return
-    }
+  const handleUpload = useCallback(
+    async (file: File) => {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file (PNG, JPG, etc.)')
+        return
+      }
 
-    // Validate size (e.g. 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB')
-      return
-    }
+      // Validate size (e.g. 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB')
+        return
+      }
 
-    setIsLoading(true)
-    const objectUrl = URL.createObjectURL(file)
-    setPreview(objectUrl) // Optimistic preview
+      setIsLoading(true)
+      const objectUrl = URL.createObjectURL(file)
+      setPreview(objectUrl) // Optimistic preview
 
-    try {
-      const updatedUser = await userApi.uploadAvatar(file)
-      onUploadSuccess(updatedUser)
-      toast.success('Avatar updated successfully')
-    } catch (error) {
-      console.error('Failed to upload avatar:', error)
-      toast.error('Failed to upload avatar')
-      setPreview(currentAvatarUrl || null) // Revert
-    } finally {
-      setIsLoading(false)
-      URL.revokeObjectURL(objectUrl)
-    }
-  }
+      try {
+        const updatedUser = await userApi.uploadAvatar(file)
+        onUploadSuccess(updatedUser)
+        toast.success('Avatar updated successfully')
+      } catch (error) {
+        console.error('Failed to upload avatar:', error)
+        toast.error('Failed to upload avatar')
+        setPreview(currentAvatarUrl || null) // Revert
+      } finally {
+        setIsLoading(false)
+        URL.revokeObjectURL(objectUrl)
+      }
+    },
+    [currentAvatarUrl, onUploadSuccess],
+  )
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -84,7 +87,7 @@ export function AvatarUpload({
         handleUpload(file)
       }
     },
-    [disabled, isLoading],
+    [disabled, isLoading, handleUpload],
   )
 
   const handlePaste = useCallback(
@@ -104,7 +107,7 @@ export function AvatarUpload({
         }
       }
     },
-    [disabled, isLoading],
+    [disabled, isLoading, handleUpload],
   )
 
   // Global paste handler when this component is mounted
@@ -122,8 +125,6 @@ export function AvatarUpload({
     // Reset input so same file can be selected again if needed
     e.target.value = ''
   }
-
-  console.log(currentAvatarUrl)
 
   return (
     <div

@@ -15,7 +15,7 @@ import { slideInFromRight } from '@/lib/utils/animations'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -40,31 +40,26 @@ export function LoginForm() {
   const handleOAuthSuccess = async () => {
     try {
       await refreshAccessToken()
-       // Small delay to ensure cookies are set/propagated if needed
+      // Small delay to ensure cookies are set/propagated if needed
       setTimeout(() => {
-          window.location.href = '/dashboard'
+        window.location.href = '/dashboard'
       }, 500)
     } catch (err) {
       console.error('OAuth success received but session refresh failed:', err)
     }
   }
 
-  const { openPopup, isLoading: isPopupLoading, popupWindow } = useOAuthPopup({
-    onSuccess: handleOAuthSuccess,
+  const { openPopup } = useOAuthPopup({
+    onSuccess: async () => {
+      await handleOAuthSuccess()
+    },
     onError: (err) => console.error('OAuth error:', err),
+    onClose: () => setOauthLoading(null),
   })
 
-  // Sync local loading state with hook if needed, or just use hook's state
-  // We'll use local state to track *which* provider is loading for specific button spinners
-  useEffect(() => {
-    if (!isPopupLoading) {
-      setOauthLoading(null)
-    }
-  }, [isPopupLoading])
-
   const handleOpenPopup = (provider: 'google' | 'github') => {
-      setOauthLoading(provider)
-      openPopup(provider)
+    setOauthLoading(provider)
+    openPopup(provider)
   }
 
   return (

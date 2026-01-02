@@ -1,60 +1,62 @@
-import apiClient from "./client";
+import { TransactionType } from '@/lib/constants/types'
+import apiClient from './client'
 
 export interface RecurringTransaction {
-  id: string;
-  amount: number;
-  description?: string;
-  frequency: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
-  startDate: string;
-  endDate?: string;
-  nextRunDate: string;
-  isActive: boolean;
-  categoryId: string;
+  id: string
+  amount: number
+  description?: string
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+  startDate: string
+  endDate?: string
+  nextRunDate: string
+  isActive: boolean
+  categoryId?: string
+  type: TransactionType
 }
 
 export interface CreateRecurringTransactionData {
-  amount: number;
-  description: string;
-  frequency: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
-  startDate: string;
-  endDate?: string;
-  categoryId: string;
+  amount: number
+  description: string
+  frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
+  startDate: string
+  endDate?: string
+  categoryId?: string
+  type: TransactionType
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface UpdateRecurringTransactionData
-  extends Partial<CreateRecurringTransactionData> {}
+export interface UpdateRecurringTransactionData extends Partial<CreateRecurringTransactionData> {}
 
 export const recurringTransactionsApi = {
   getAll: async (): Promise<RecurringTransaction[]> => {
     const response = await apiClient.get<RecurringTransaction[]>(
-      "/recurring-transactions"
-    );
-    return response.data;
+      '/recurring-transactions',
+    )
+    return response.data
   },
 
   create: async (
-    data: CreateRecurringTransactionData
+    data: CreateRecurringTransactionData,
   ): Promise<RecurringTransaction> => {
     const response = await apiClient.post<RecurringTransaction>(
-      "/recurring-transactions",
-      data
-    );
-    return response.data;
+      '/recurring-transactions',
+      data,
+    )
+    return response.data
   },
 
   update: async (
     id: string,
-    data: UpdateRecurringTransactionData
+    data: UpdateRecurringTransactionData,
   ): Promise<RecurringTransaction> => {
     const response = await apiClient.patch<RecurringTransaction>(
       `/recurring-transactions/${id}`,
-      data
-    );
-    return response.data;
+      data,
+    )
+    return response.data
   },
 
   delete: async (id: string): Promise<void> => {
-    await apiClient.delete(`/recurring-transactions/${id}`);
+    await apiClient.delete(`/recurring-transactions/${id}`)
   },
-};
+}

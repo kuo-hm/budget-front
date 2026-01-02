@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Category } from '@/lib/api/categories'
+import { TransactionType } from '@/lib/constants/types'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -72,7 +73,7 @@ import * as z from 'zod'
 
 const categoryFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  type: z.enum(['INCOME', 'EXPENSE', 'SAVING']),
+  type: z.enum(TransactionType),
   icon: z.string().optional(),
 })
 
@@ -123,10 +124,10 @@ const iconOptions = Object.keys(iconMap)
 interface CategoryFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: CategoryFormValues) => void
+  onSubmit: (data: CategoryFormValues) => Promise<void>
   initialData?: Category | null
   isLoading?: boolean
-  defaultType?: 'INCOME' | 'EXPENSE' | 'SAVING'
+  defaultType?: TransactionType
 }
 
 export function CategoryForm({
@@ -135,7 +136,7 @@ export function CategoryForm({
   onSubmit,
   initialData,
   isLoading,
-  defaultType = 'EXPENSE',
+  defaultType = TransactionType.EXPENSE,
 }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),

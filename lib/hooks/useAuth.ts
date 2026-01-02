@@ -28,14 +28,12 @@ export function useAuth() {
         const response = await authApi.login(data)
 
         setAuth(response.user, response.accessToken)
-        console.log(response)
         router.push('/dashboard')
         return response
       } catch (err: unknown) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const error = err as any
+        const error = err as { response: { data: { message: string } } }
         const errorMessage =
-          error.response?.data?.message || 'Login failed. Please try again.'
+          error?.response?.data['message'] || 'Login failed. Please try again.'
         setError(errorMessage)
         if (
           error.response?.data?.message ===
@@ -61,10 +59,9 @@ export function useAuth() {
         await authApi.register(data)
         router.push(`/auth/check-email?email=${encodeURIComponent(data.email)}`)
       } catch (err: unknown) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const error = err as any
+        const error = err as { response: { data: { message: string } } }
         const errorMessage =
-          error.response?.data?.message ||
+          error?.response?.data['message'] ||
           'Registration failed. Please try again.'
         setError(errorMessage)
         console.error('Registration error:', error)

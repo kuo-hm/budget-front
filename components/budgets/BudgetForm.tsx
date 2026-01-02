@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Budget, CreateBudgetData, Frequency } from '@/lib/api/budgets'
+import { TransactionType } from '@/lib/constants/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -136,7 +137,7 @@ export function BudgetForm({
                   value={field.value || ''}
                   onChange={field.onChange}
                   placeholder="Select category"
-                  type="EXPENSE"
+                  type={TransactionType.EXPENSE}
                 />
                 <FormMessage />
               </FormItem>

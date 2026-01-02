@@ -1,41 +1,41 @@
-"use client";
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash, AlertCircle } from "lucide-react";
-import { Budget } from "@/lib/api/budgets";
-import { format } from "date-fns";
-import { motion } from "framer-motion";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+} from '@/components/ui/dropdown-menu'
+import { Progress } from '@/components/ui/progress'
+import { Budget } from '@/lib/api/budgets'
+import { useCurrency } from '@/lib/hooks/useCurrency'
+import { format } from 'date-fns'
+import { motion } from 'framer-motion'
+import { AlertCircle, Edit, MoreHorizontal, Trash } from 'lucide-react'
 
 interface BudgetCardProps {
-  budget: Budget;
-  onEdit: (budget: Budget) => void;
-  onDelete: (id: string) => void;
+  budget: Budget
+  onEdit: (budget: Budget) => void
+  onDelete: (id: string) => void
 }
 
 export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
-  const { format: formatCurrency } = useCurrency();
-  const percentage = Math.min(budget.percentageUsed, 100);
+  const { format: formatCurrency } = useCurrency()
+  const percentage = Math.min(budget.percentageUsed, 100)
 
   // Determine color based on percentage
-  let progressColor = "bg-emerald-500";
-  let textColor = "text-emerald-500";
+  let progressColor = 'bg-emerald-500'
+  let textColor = 'text-emerald-500'
 
   if (percentage >= 80) {
-    progressColor = "bg-rose-500";
-    textColor = "text-rose-500";
+    progressColor = 'bg-rose-500'
+    textColor = 'text-rose-500'
   } else if (percentage >= 50) {
-    progressColor = "bg-amber-500";
-    textColor = "text-amber-500";
+    progressColor = 'bg-amber-500'
+    textColor = 'text-amber-500'
   }
 
   return (
@@ -47,7 +47,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
       <Card className="overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            {budget.category?.name || "Uncategorized"}
+            {budget.category?.name || 'Other'}
           </CardTitle>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -76,11 +76,11 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
           <div className="text-2xl font-bold">
             {formatCurrency(budget.limitAmount)}
           </div>
-          <p className="text-xs text-muted-foreground mb-4">
-            {format(new Date(budget.startDate), "MMM d")}
+          <p className="text-muted-foreground mb-4 text-xs">
+            {format(new Date(budget.startDate), 'MMM d')}
             {budget.endDate
-              ? ` - ${format(new Date(budget.endDate), "MMM d, yyyy")}`
-              : ""}
+              ? ` - ${format(new Date(budget.endDate), 'MMM d, yyyy')}`
+              : ''}
             {budget.frequency && ` • ${budget.frequency}`}
           </p>
 
@@ -98,8 +98,8 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
               indicatorClassName={progressColor}
             />
             {percentage >= 100 && (
-              <div className="flex items-center text-xs text-rose-500 mt-1">
-                <AlertCircle className="h-3 w-3 mr-1" />
+              <div className="mt-1 flex items-center text-xs text-rose-500">
+                <AlertCircle className="mr-1 h-3 w-3" />
                 Over budget
               </div>
             )}
@@ -107,5 +107,5 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         </CardContent>
       </Card>
     </motion.div>
-  );
+  )
 }

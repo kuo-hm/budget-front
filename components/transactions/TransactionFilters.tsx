@@ -1,45 +1,46 @@
-"use client";
+'use client'
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, X } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { TransactionFilters as FilterType } from "@/lib/api/transactions";
-import { useState, useEffect } from "react";
-import { DateRange } from "react-day-picker";
-import { useCategories } from "@/lib/hooks/useCategories";
+} from '@/components/ui/select'
+import { TransactionFilters as FilterType } from '@/lib/api/transactions'
+import { TransactionType } from '@/lib/constants/types'
+import { useCategories } from '@/lib/hooks/useCategories'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
+import { CalendarIcon, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { DateRange } from 'react-day-picker'
 
 interface TransactionFiltersProps {
-  filters: FilterType;
-  onFilterChange: (filters: FilterType) => void;
+  filters: FilterType
+  onFilterChange: (filters: FilterType) => void
 }
 
 export function TransactionFilters({
   filters,
   onFilterChange,
 }: TransactionFiltersProps) {
-  const { data: categories } = useCategories();
+  const { data: categories } = useCategories()
   const [date, setDate] = useState<DateRange | undefined>({
     from: filters.startDate ? new Date(filters.startDate) : undefined,
     to: filters.endDate ? new Date(filters.endDate) : undefined,
-  });
+  })
 
   // Debounce search
-  const [searchValue, setSearchValue] = useState(filters.search || "");
+  const [searchValue, setSearchValue] = useState(filters.search || '')
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,43 +49,43 @@ export function TransactionFilters({
           ...filters,
           search: searchValue || undefined,
           page: 1,
-        });
+        })
       }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchValue, filters, onFilterChange]);
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchValue, filters, onFilterChange])
 
   const handleDateSelect = (range: DateRange | undefined) => {
-    setDate(range);
+    setDate(range)
     if (range?.from) {
       onFilterChange({
         ...filters,
         startDate: range.from.toISOString(),
         endDate: range.to?.toISOString(),
         page: 1,
-      });
+      })
     } else {
       onFilterChange({
         ...filters,
         startDate: undefined,
         endDate: undefined,
         page: 1,
-      });
+      })
     }
-  };
+  }
 
   const clearFilters = () => {
-    setSearchValue("");
-    setDate(undefined);
+    setSearchValue('')
+    setDate(undefined)
     onFilterChange({
       page: 1,
       limit: filters.limit,
-    });
-  };
+    })
+  }
 
   return (
-    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-card p-4 rounded-lg border">
-      <div className="flex flex-1 gap-4 flex-col md:flex-row">
+    <div className="bg-card flex flex-col gap-4 rounded-lg border p-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-1 flex-col gap-4 md:flex-row">
         <div className="w-full md:w-64">
           <Input
             placeholder="Search transactions..."
@@ -95,12 +96,11 @@ export function TransactionFilters({
         </div>
 
         <Select
-          value={filters.type || "all"}
+          value={filters.type || 'all'}
           onValueChange={(value) =>
             onFilterChange({
               ...filters,
-              type:
-                value === "all" ? undefined : (value as "INCOME" | "EXPENSE"),
+              type: value === 'all' ? undefined : (value as TransactionType),
               page: 1,
             })
           }
@@ -116,11 +116,11 @@ export function TransactionFilters({
         </Select>
 
         <Select
-          value={filters.categoryId || "all"}
+          value={filters.categoryId || 'all'}
           onValueChange={(value) =>
             onFilterChange({
               ...filters,
-              categoryId: value === "all" ? undefined : value,
+              categoryId: value === 'all' ? undefined : value,
               page: 1,
             })
           }
@@ -143,19 +143,19 @@ export function TransactionFilters({
             <Button
               variant="outline"
               className={cn(
-                "w-full md:w-[240px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
+                'w-full justify-start text-left font-normal md:w-[240px]',
+                !date && 'text-muted-foreground',
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
               {date?.from ? (
                 date.to ? (
                   <>
-                    {format(date.from, "LLL dd, y")} -{" "}
-                    {format(date.to, "LLL dd, y")}
+                    {format(date.from, 'LLL dd, y')} -{' '}
+                    {format(date.to, 'LLL dd, y')}
                   </>
                 ) : (
-                  format(date.from, "LLL dd, y")
+                  format(date.from, 'LLL dd, y')
                 )
               ) : (
                 <span>Pick a date range</span>
@@ -179,15 +179,15 @@ export function TransactionFilters({
         filters.type ||
         filters.categoryId ||
         filters.startDate) && (
-          <Button
-            variant="ghost"
-            onClick={clearFilters}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="ml-2 h-4 w-4" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          onClick={clearFilters}
+          className="h-8 px-2 lg:px-3"
+        >
+          Reset
+          <X className="ml-2 h-4 w-4" />
+        </Button>
+      )}
     </div>
-  );
+  )
 }

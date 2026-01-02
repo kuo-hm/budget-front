@@ -35,12 +35,13 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { goalsApi } from '@/lib/api/goals'
+import { TransactionType } from '@/lib/constants/types'
 import { useQuery } from '@tanstack/react-query'
 
 const transactionSchema = z.object({
   amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
-  type: z.enum(['INCOME', 'EXPENSE', 'SAVING']),
-  categoryId: z.string().min(1, 'Category is required'),
+  type: z.enum(TransactionType),
+  categoryId: z.string().optional(),
   date: z.date(),
   description: z.string().optional(),
   goalId: z.string().optional(),
@@ -67,7 +68,7 @@ export function TransactionForm({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(transactionSchema) as any,
     defaultValues: {
-      type: 'EXPENSE',
+      type: TransactionType.EXPENSE,
       categoryId: '',
       date: new Date(),
       description: '',
@@ -85,8 +86,8 @@ export function TransactionForm({
       form.reset({
         amount: initialData.amount,
         type:
-          (initialData.category?.type as 'INCOME' | 'EXPENSE' | 'SAVING') ||
-          'EXPENSE',
+          (initialData.category?.type as TransactionType) ||
+          TransactionType.EXPENSE,
         categoryId: initialData.categoryId,
         date: new Date(initialData.date),
         description: initialData.description || '',
@@ -94,7 +95,7 @@ export function TransactionForm({
       })
     } else {
       form.reset({
-        type: 'EXPENSE',
+        type: TransactionType.EXPENSE,
         categoryId: '',
         date: new Date(),
         description: '',
@@ -115,8 +116,9 @@ export function TransactionForm({
       amount: data.amount,
       description: data.description,
       date: data.date.toISOString(),
-      categoryId: data.categoryId,
+      categoryId: data.categoryId || undefined,
       goalId: data.type === 'SAVING' && data.goalId ? data.goalId : undefined,
+      type: data.type,
     })
     onOpenChange(false)
   }

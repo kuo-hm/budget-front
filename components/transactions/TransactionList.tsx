@@ -146,6 +146,7 @@ export function TransactionList({
                 </TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead className="w-12"></TableHead>
@@ -156,6 +157,9 @@ export function TransactionList({
                 <TableRow key={i}>
                   <TableCell>
                     <Skeleton className="h-4 w-4" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
                   </TableCell>
                   <TableCell>
                     <Skeleton className="h-4 w-24" />
@@ -209,6 +213,7 @@ export function TransactionList({
                 </TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
                 <TableHead className="w-12"></TableHead>
@@ -246,18 +251,23 @@ export function TransactionList({
                     </TableCell>
                     <TableCell>
                       <span className="bg-primary/10 text-primary inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
-                        {transaction.category?.name || 'Uncategorized'}
+                        {transaction.category?.name || 'Other'}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span className="bg-primary/10 text-primary inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
+                        {transaction.type}
                       </span>
                     </TableCell>
                     <TableCell
                       className={cn(
                         'text-right font-bold',
-                        transaction.category?.type === 'INCOME'
+                        transaction.type === 'INCOME'
                           ? 'text-emerald-500'
                           : 'text-rose-500',
                       )}
                     >
-                      {transaction.category?.type === 'INCOME' ? '+' : '-'}
+                      {transaction.type === 'INCOME' ? '+' : '-'}
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: transaction.currency || userCurrency,

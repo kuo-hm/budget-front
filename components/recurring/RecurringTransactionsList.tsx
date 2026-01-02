@@ -28,9 +28,9 @@ export function RecurringTransactionsList() {
   const { format: formatCurrency } = useCurrency()
   const deleteMutation = useDeleteRecurringTransaction()
 
-  const getCategoryName = (categoryId: string) => {
+  const getCategoryName = (categoryId: string | undefined) => {
     const category = categories?.find((c) => c.id === categoryId)
-    return category ? category.name : 'Unknown'
+    return category ? category.name : 'Other'
   }
 
   const handleDelete = async (id: string) => {
@@ -96,6 +96,7 @@ export function RecurringTransactionsList() {
             <TableRow>
               <TableHead>Description</TableHead>
               <TableHead>Amount</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Frequency</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Start Date</TableHead>
@@ -110,6 +111,9 @@ export function RecurringTransactionsList() {
                   {transaction.description}
                 </TableCell>
                 <TableCell>{formatCurrency(transaction.amount)}</TableCell>
+                <TableCell className="capitalize">
+                  {transaction.type.toLowerCase()}
+                </TableCell>
                 <TableCell>
                   <Badge variant="secondary">{transaction.frequency}</Badge>
                 </TableCell>

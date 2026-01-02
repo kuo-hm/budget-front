@@ -29,6 +29,7 @@ import {
   CreateRecurringTransactionData,
   RecurringTransaction,
 } from '@/lib/api/recurring-transactions'
+import { TransactionType } from '@/lib/constants/types'
 import { useCategory } from '@/lib/hooks/useCategories'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -41,8 +42,8 @@ import * as z from 'zod'
 const recurringTransactionSchema = z.object({
   amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
   description: z.string().min(1, 'Description is required'),
-  type: z.enum(['INCOME', 'EXPENSE', 'SAVING']),
-  categoryId: z.string().min(1, 'Category is required'),
+  type: z.enum(TransactionType),
+  categoryId: z.string().optional(),
   frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().optional(),
@@ -73,7 +74,7 @@ export function RecurringTransactionForm({
     defaultValues: {
       amount: 0,
       description: '',
-      type: 'EXPENSE',
+      type: TransactionType.EXPENSE,
       categoryId: '',
       frequency: 'MONTHLY',
       startDate: new Date().toISOString().split('T')[0],
@@ -90,7 +91,7 @@ export function RecurringTransactionForm({
         form.reset({
           amount: initialData.amount,
           description: initialData.description || '',
-          type: initialCategory?.type || 'EXPENSE',
+          type: initialCategory?.type || TransactionType.EXPENSE,
           categoryId: initialData.categoryId,
           frequency: initialData.frequency,
           startDate: initialData.startDate.split('T')[0],
@@ -100,7 +101,7 @@ export function RecurringTransactionForm({
         form.reset({
           amount: 0,
           description: '',
-          type: 'EXPENSE',
+          type: TransactionType.EXPENSE,
           categoryId: '',
           frequency: 'MONTHLY',
           startDate: new Date().toISOString().split('T')[0],
@@ -112,10 +113,11 @@ export function RecurringTransactionForm({
 
   const handleSubmit = (values: RecurringTransactionFormValues) => {
     // We don't send 'type' to the API
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { type: _type, ...data } = values
+
+    const data = values
     onSubmit({
       ...data,
+      categoryId: data.categoryId || undefined,
       endDate: data.endDate || undefined,
     })
   }

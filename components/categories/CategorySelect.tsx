@@ -10,13 +10,14 @@ import {
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
+import { TransactionType } from '@/lib/constants/types'
 import { useCategories, useCreateCategory } from '@/lib/hooks/useCategories'
 import { CategoryForm, CategoryFormValues } from './CategoryForm'
 
 interface CategorySelectProps {
   value: string
   onChange: (value: string) => void
-  type?: 'INCOME' | 'EXPENSE' | 'SAVING'
+  type?: TransactionType
   placeholder?: string
   disabled?: boolean
 }
@@ -36,7 +37,9 @@ export function CategorySelect({
     type ? c.type === type : true,
   )
 
-  const handleCreateCategory = (data: CategoryFormValues) => {
+  const handleCreateCategory = async (
+    data: CategoryFormValues,
+  ): Promise<void> => {
     createCategory(
       {
         ...data,

@@ -36,7 +36,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     initAuth()
-  }, [refreshAccessToken])
+  }, [refreshAccessToken, pathname])
 
   useEffect(() => {
     if (isChecking) return
@@ -45,7 +45,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
     if (isAuthenticated) {
       if (isPublicRoute) {
-        console.log('isPublicRoute')
         router.push('/dashboard')
       }
     } else {

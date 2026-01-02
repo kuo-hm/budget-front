@@ -104,7 +104,9 @@ export default function DashboardLayout({
     }
   }
 
-  const handleCreateCategory = async (data: CreateCategoryData) => {
+  const handleCreateCategory = async (
+    data: CreateCategoryData,
+  ): Promise<void> => {
     try {
       await createCategoryMutation.mutateAsync(data)
       toast.success('Category created successfully')
@@ -186,7 +188,6 @@ export default function DashboardLayout({
       <CategoryForm
         open={isCategoryOpen}
         onOpenChange={setIsCategoryOpen}
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleCreateCategory}
         isLoading={createCategoryMutation.isPending}
       />
