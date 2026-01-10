@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const PUBLIC_ROUTES = [
-  '/',
   '/login',
   '/register',
   '/auth/verify-email',
