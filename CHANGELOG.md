@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [0.1.7](https://github.com/kuo-hm/budget-front/compare/v0.1.6...v0.1.7) (2026-01-10)
+
+
+### Features
+
+* enhance transaction management with bulk delete functionality ([24cba5c](https://github.com/kuo-hm/budget-front/commit/24cba5c80ab198899738db8a04768b02ed04e77c))
+
 ## [0.1.6](https://github.com/kuo-hm/budget-front/compare/v0.1.5...v0.1.6) (2026-01-02)
 
 
