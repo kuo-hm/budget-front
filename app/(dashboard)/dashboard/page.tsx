@@ -14,7 +14,7 @@ import {
   useYearComparison,
 } from '@/lib/hooks/useAnalytics'
 import { motion } from 'framer-motion'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 
 const SpendingTrendChart = lazy(() =>
   import('@/components/analytics/charts/SpendingTrendChart').then((module) => ({
@@ -130,15 +130,17 @@ export default function AnalyticsPage() {
             data={budgetPerformance}
             isLoading={isBudgetLoading}
           />
-        </Suspense>
+        </Suspense>{' '}
         <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
-          <SavingsRateChart data={savingsRate} isLoading={isSavingsLoading} />
+          <YearComparisonChart
+            data={yearComparison}
+            isLoading={isYearLoading}
+          />
         </Suspense>
+        {/* <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
+          <SavingsRateChart data={savingsRate} isLoading={isSavingsLoading} />
+        </Suspense> */}
       </div>
-
-      <Suspense fallback={<Skeleton className="h-[350px] w-full" />}>
-        <YearComparisonChart data={yearComparison} isLoading={isYearLoading} />
-      </Suspense>
     </motion.div>
   )
 }

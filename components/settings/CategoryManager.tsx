@@ -202,7 +202,7 @@ export function CategoryManager() {
       />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {['INCOME', 'EXPENSE', 'SAVING'].map((type) => (
+        {['INCOME', 'EXPENSE'].map((type) => (
           <Card key={type} className="h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">

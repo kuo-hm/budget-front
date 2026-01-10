@@ -34,9 +34,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
-import { goalsApi } from '@/lib/api/goals'
 import { TransactionType } from '@/lib/constants/types'
-import { useQuery } from '@tanstack/react-query'
 
 const transactionSchema = z.object({
   amount: z.coerce.number().min(0.01, 'Amount must be greater than 0'),
@@ -104,12 +102,6 @@ export function TransactionForm({
     }
   }, [initialData, form, open])
 
-  const { data: goals } = useQuery({
-    queryKey: ['goals'],
-    queryFn: goalsApi.getAll,
-    enabled: selectedType === 'SAVING',
-  })
-
   const handleSubmit = async (data: TransactionFormValues) => {
     // We don't send 'type' to the API as it's part of the category
     await onSubmit({
@@ -117,7 +109,6 @@ export function TransactionForm({
       description: data.description,
       date: data.date.toISOString(),
       categoryId: data.categoryId || undefined,
-      goalId: data.type === 'SAVING' && data.goalId ? data.goalId : undefined,
       type: data.type,
     })
     onOpenChange(false)
@@ -160,7 +151,6 @@ export function TransactionForm({
                   <SelectContent>
                     <SelectItem value="INCOME">Income</SelectItem>
                     <SelectItem value="EXPENSE">Expense</SelectItem>
-                    <SelectItem value="SAVING">Saving</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -203,37 +193,6 @@ export function TransactionForm({
               </FormItem>
             )}
           />
-
-          {selectedType === 'SAVING' && (
-            <FormField
-              control={form.control}
-              name="goalId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Goal (Optional)</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={!goals?.length}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a goal" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {goals?.map((goal) => (
-                        <SelectItem key={goal.id} value={goal.id}>
-                          {goal.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
 
           <FormField
             control={form.control}

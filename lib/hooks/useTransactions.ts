@@ -1,30 +1,30 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  transactionsApi,
-  TransactionFilters,
   CreateTransactionData,
+  TransactionFilters,
+  transactionsApi,
   UpdateTransactionData,
-} from "@/lib/api/transactions";
-import { GOAL_KEYS } from "./useGoals";
+} from '@/lib/api/transactions'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { GOAL_KEYS } from './useGoals'
 
 export const TRANSACTION_KEYS = {
-  all: ["transactions"] as const,
-  lists: () => [...TRANSACTION_KEYS.all, "list"] as const,
+  all: ['transactions'] as const,
+  lists: () => [...TRANSACTION_KEYS.all, 'list'] as const,
   list: (filters: TransactionFilters) =>
     [...TRANSACTION_KEYS.lists(), filters] as const,
-  details: () => [...TRANSACTION_KEYS.all, "detail"] as const,
+  details: () => [...TRANSACTION_KEYS.all, 'detail'] as const,
   detail: (id: string) => [...TRANSACTION_KEYS.details(), id] as const,
-  summaries: () => [...TRANSACTION_KEYS.all, "summary"] as const,
+  summaries: () => [...TRANSACTION_KEYS.all, 'summary'] as const,
   summary: (startDate: string, endDate: string) =>
     [...TRANSACTION_KEYS.summaries(), { startDate, endDate }] as const,
-};
+}
 
 export function useTransactions(filters: TransactionFilters = {}) {
   return useQuery({
     queryKey: TRANSACTION_KEYS.list(filters),
     queryFn: () => transactionsApi.getAll(filters),
     placeholderData: (previousData) => previousData,
-  });
+  })
 }
 
 export function useTransaction(id: string) {
@@ -32,68 +32,81 @@ export function useTransaction(id: string) {
     queryKey: TRANSACTION_KEYS.detail(id),
     queryFn: () => transactionsApi.getOne(id),
     enabled: !!id,
-  });
+  })
 }
 
 export function useCreateTransaction() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (data: CreateTransactionData) => transactionsApi.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
-      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() })
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() })
     },
-  });
+  })
 }
 
 export function useUpdateTransaction() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTransactionData }) =>
       transactionsApi.update(id, data),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
-      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() })
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() })
       queryClient.invalidateQueries({
         queryKey: TRANSACTION_KEYS.detail(data.id),
-      });
+      })
     },
-  });
+  })
 }
 
 export function useDeleteTransaction() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (id: string) => transactionsApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
-      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() })
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() })
     },
-  });
+  })
+}
+
+export function useDeleteTransactions() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (ids: string[]) => transactionsApi.deleteMultiple(ids),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() })
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() })
+    },
+  })
 }
 
 export function useExportTransactions() {
   return useMutation({
     mutationFn: (filters?: TransactionFilters) =>
       transactionsApi.export(filters),
-  });
+  })
 }
 
 export function useImportTransactions() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (file: File) => transactionsApi.import(file),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() });
-      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.summaries() })
+      queryClient.invalidateQueries({ queryKey: GOAL_KEYS.lists() })
     },
-  });
+  })
 }

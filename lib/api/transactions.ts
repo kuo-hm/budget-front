@@ -110,6 +110,10 @@ export const transactionsApi = {
     await apiClient.delete(`/transactions/${id}`)
   },
 
+  deleteMultiple: async (ids: string[]): Promise<void> => {
+    await Promise.all(ids.map((id) => apiClient.delete(`/transactions/${id}`)))
+  },
+
   export: async (filters?: TransactionFilters): Promise<Blob> => {
     const response = await apiClient.get('/transactions/export', {
       params: filters,

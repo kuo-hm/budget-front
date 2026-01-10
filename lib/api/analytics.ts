@@ -32,11 +32,10 @@ export interface TopCategory {
 }
 
 export interface MonthlySummary {
-  month: string
   income: number
   expenses: number
-  netSavings: number
-  savingsRate: number
+  savings: number
+  currentBalance: number
 }
 
 export interface BudgetPerformanceItem {

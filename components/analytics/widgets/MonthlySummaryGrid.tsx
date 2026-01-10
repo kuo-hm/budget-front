@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { MonthlySummary } from '@/lib/api/analytics'
 import { useCurrency } from '@/lib/hooks/useCurrency'
 import { formatCompactNumber } from '@/lib/utils'
-import { ArrowDownIcon, ArrowUpIcon, DollarSign, PiggyBank } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, PiggyBank } from 'lucide-react'
 
 interface MonthlySummaryGridProps {
   data?: MonthlySummary
@@ -31,7 +31,7 @@ export function MonthlySummaryGrid({
   if (!data) return null
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Income</CardTitle>
@@ -55,7 +55,7 @@ export function MonthlySummaryGrid({
           </div>
         </CardContent>
       </Card>
-
+      {/* 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
@@ -64,21 +64,21 @@ export function MonthlySummaryGrid({
         <CardContent>
           <div
             className="text-2xl font-bold"
-            title={format(isNaN(data.netSavings) ? 0 : data.netSavings)}
+            title={format(isNaN(data.savings) ? 0 : data.savings)}
           >
-            {formatCompactNumber(isNaN(data.netSavings) ? 0 : data.netSavings)}
+            {formatCompactNumber(isNaN(data.savings) ? 0 : data.savings)}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Savings Rate</CardTitle>
+          <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
           <PiggyBank className="h-4 w-4 text-amber-500" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {isNaN(data.savingsRate) ? 0 : data.savingsRate}%
+            {format(data.currentBalance)}
           </div>
         </CardContent>
       </Card>

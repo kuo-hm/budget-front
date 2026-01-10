@@ -23,13 +23,14 @@ import {
 import {
   useCreateTransaction,
   useDeleteTransaction,
+  useDeleteTransactions,
   useExportTransactions,
   useImportTransactions,
   useTransactions,
   useUpdateTransaction,
 } from '@/lib/hooks/useTransactions'
 import { motion } from 'framer-motion'
-import { Download, Plus, Upload } from 'lucide-react'
+import { Download, Plus, Trash, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -53,6 +54,7 @@ export default function TransactionsPage() {
   const createMutation = useCreateTransaction()
   const updateMutation = useUpdateTransaction()
   const deleteMutation = useDeleteTransaction()
+  const deleteMultipleMutation = useDeleteTransactions()
   const exportMutation = useExportTransactions()
   const importMutation = useImportTransactions()
 
@@ -88,8 +90,18 @@ export default function TransactionsPage() {
       await deleteMutation.mutateAsync(deleteId)
       toast.success('Transaction deleted successfully')
       setDeleteId(null)
+    } catch {}
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return
+    try {
+      await deleteMultipleMutation.mutateAsync(selectedIds)
+      toast.success(`${selectedIds.length} transactions deleted successfully`)
+      setSelectedIds([])
+      setDeleteId(null)
     } catch {
-      toast.error('Failed to delete transaction')
+      toast.error('Failed to delete transactions')
     }
   }
 
@@ -165,7 +177,7 @@ export default function TransactionsPage() {
             ref={fileInputRef}
             onChange={(e) => void handleFileChange(e)}
             className="hidden"
-            accept=".csv"
+            accept=".csv, .pdf"
           />
           <Button
             variant="outline"
@@ -181,12 +193,18 @@ export default function TransactionsPage() {
             disabled={importMutation.isPending}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Import CSV
+            Import CSV/PDF
           </Button>
           <Button onClick={openCreateModal}>
             <Plus className="mr-2 h-4 w-4" />
             Add Transaction
           </Button>
+          {selectedIds.length > 0 && (
+            <Button variant="destructive" onClick={() => setDeleteId('bulk')}>
+              <Trash className="mr-2 h-4 w-4" />
+              Delete ({selectedIds.length})
+            </Button>
+          )}
         </div>
       </div>
 
@@ -227,14 +245,23 @@ export default function TransactionsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              transaction.
+              This action cannot be undone. This will permanently delete{' '}
+              {deleteId === 'bulk'
+                ? `the ${selectedIds.length} selected transactions`
+                : 'the transaction'}
+              .
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => void handleDelete()}
+              onClick={() => {
+                if (deleteId === 'bulk') {
+                  void handleBulkDelete()
+                } else {
+                  void handleDelete()
+                }
+              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete

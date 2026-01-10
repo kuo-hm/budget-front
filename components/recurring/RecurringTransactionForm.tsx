@@ -195,7 +195,6 @@ export function RecurringTransactionForm({
                     <SelectContent>
                       <SelectItem value="INCOME">Income</SelectItem>
                       <SelectItem value="EXPENSE">Expense</SelectItem>
-                      <SelectItem value="SAVING">Saving</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

@@ -44,7 +44,8 @@ export function TransactionFilters({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchValue !== filters.search) {
+      const currentSearch = filters.search || ''
+      if (searchValue !== currentSearch) {
         onFilterChange({
           ...filters,
           search: searchValue || undefined,
